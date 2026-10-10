@@ -1,5 +1,5 @@
 {
-  "name": "mk-solver",
+  "name": "mksolver",
   "version": "0.1.0",
   "description": "MK!Solver: a TK!Solver-style declarative equation solver that runs in the browser",
   "license": "MIT",

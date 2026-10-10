@@ -1582,11 +1582,14 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   'use strict';
   const E = window.CHEngine;
   const EXAMPLES = window.CHExamples || [];
-  const STORE_KEY = 'mk-solver:model:v1';
-  const PREF_KEY = 'mk-solver:prefs:v1';
-  // Saved under the project's earlier name, CH!Solver; read once and carried over.
-  const OLD_KEYS = { [STORE_KEY]: 'ch-solver:model:v1', [PREF_KEY]: 'ch-solver:prefs:v1' };
-  const readStore = (key) => localStorage.getItem(key) ?? localStorage.getItem(OLD_KEYS[key]);
+  const STORE_KEY = 'MKSolver:model:v1';
+  const PREF_KEY = 'MKSolver:prefs:v1';
+  // Keys used by earlier versions; read once and carried over.
+  const OLD_KEYS = {
+    [STORE_KEY]: ['mk-solver:model:v1', 'ch-solver:model:v1'],
+    [PREF_KEY]: ['mk-solver:prefs:v1', 'ch-solver:prefs:v1'],
+  };
+  const readStore = (key) => [key, ...OLD_KEYS[key]].map((k) => localStorage.getItem(k)).find((v) => v != null) ?? null;
 
   const $ = (sel) => document.querySelector(sel);
   const fmt = (x) => E.formatNumber(x, 8);
