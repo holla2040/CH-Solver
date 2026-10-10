@@ -62,6 +62,32 @@
       },
     },
     {
+      id: 'divider',
+      title: 'Voltage Divider',
+      desc: 'Two resistors in series. Find Vout, or give Vout and backsolve R2.',
+      rules: [
+        '" Vin across R1 and R2 in series; Vout is taken across R2',
+        'Vout = Vin * R2 / (R1 + R2)',
+        'I = Vin / (R1 + R2)',
+        'P1 = I^2 * R1',
+        'P2 = I^2 * R2',
+      ],
+      vars: {
+        Vin: { input: '12', unit: 'V', comment: 'supply voltage' },
+        R1: { input: '10', unit: 'kohm', comment: 'top resistor' },
+        R2: { input: '4.7', unit: 'kohm', comment: 'try: clear R2, enter Vout = 3.3' },
+        Vout: { unit: 'V', comment: 'output across R2' },
+        I: { unit: 'mA', comment: 'divider current' },
+        P1: { unit: 'mW', comment: 'power in R1' },
+        P2: { unit: 'mW', comment: 'power in R2' },
+      },
+      units: [
+        { from: 'kohm', to: 'ohm', factor: '1000', offset: '' },
+        { from: 'mA', to: 'A', factor: '0.001', offset: '' },
+        { from: 'mW', to: 'W', factor: '0.001', offset: '' },
+      ],
+    },
+    {
       id: 'ladders',
       title: 'Crossed Ladders',
       desc: 'A classic puzzle: two ladders cross 10 ft up. How wide is the alley?',

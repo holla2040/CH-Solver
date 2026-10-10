@@ -58,6 +58,13 @@ const cole = ['1/sqrt(f) = -2*log(eps/D/3.7 + 2.51/(Re*sqrt(f)))', 'Re = rho*V*D
 r = run(cole, { rho: 998, V: 2, D: 0.1, mu: 0.001, eps: 0.000045, L: 100 });
 check('colebrook', r.ok && near(r.values.f, 0.01766, 5e-3), r);
 
+// --- voltage divider: forward, then backsolve R2 (appears twice)
+const div = ['Vout = Vin * R2 / (R1 + R2)', 'I = Vin / (R1 + R2)'];
+r = run(div, { Vin: 12, R1: 10000, R2: 4700 });
+check('divider Vout', r.ok && near(r.values.Vout, 12 * 4700 / 14700), r);
+r = run(div, { Vin: 12, R1: 10000, Vout: 3.3 });
+check('divider backsolve R2', r.ok && near(r.values.R2, 3.3 * 10000 / 8.7), r);
+
 // --- crossed ladders
 r = run(['h1 = sqrt(L1^2 - w^2)', 'h2 = sqrt(L2^2 - w^2)', '1/c = 1/h1 + 1/h2'], { L1: 30, L2: 20, c: 10 }, { w: 10 });
 check('crossed ladders', r.ok && near(r.values.w, 12.3118, 1e-4), r);
