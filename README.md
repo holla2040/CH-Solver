@@ -3,20 +3,12 @@
 A browser-based, declarative equation solver modeled on **TK!Solver**, the
 1980s program where you typed equations in any order, entered whatever you
 knew, and it solved for the rest, iterating from your guesses when it had to.
-The name honors TK!Solver's inventor, **Milos Konopasek** (MK). The project
-was first called CH!Solver.
+The name honors TK!Solver's inventor, **Milos Konopasek** (MK).
 
 No build step, no dependencies, no server. Open `index.html` in a browser, or
 use the single-file version in `dist/mk-solver.html`.
 
-```
-Rule Sheet                         Variable Sheet
-  c^2 = a^2 + b^2                    St  Input  Name   Output
-  area = a * b / 2                        13    c
-                                          30    area
-                                              a      5
-                                              b      12      ← solved by iteration
-```
+<img src="docs/screenshot.png" width="828" alt="MK!Solver main window: the Variable Sheet above the Rule Sheet, solving the Projectile Range example">
 
 ## Running it
 
@@ -106,6 +98,7 @@ js/examples.js        example models
 js/app.js             UI
 test/engine.test.js   engine tests (npm test)
 tools/build-single.js inlines everything into dist/mk-solver.html
+docs/screenshot.png   the screenshot above
 ```
 
 ## Sources
