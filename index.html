@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- BUILD:HEAD START -->
-<title>CH!Solver</title>
+<title>MK!Solver</title>
 <link rel="stylesheet" href="css/style.css">
 <!-- BUILD:HEAD END -->
 </head>
@@ -12,9 +12,9 @@
 <!-- BUILD:BODY START -->
 <header class="menubar" id="menubar">
   <div class="menu" data-menu="about">
-    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About CH!Solver">CH!</button>
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About MK!Solver">MK!</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="about">About CH!Solver…</button>
+      <button role="menuitem" data-cmd="about">About MK!Solver…</button>
       <button role="menuitem" data-cmd="guide">Quick Guide</button>
     </div>
   </div>
@@ -73,7 +73,7 @@
   <div class="columns">
     <div class="col-main">
       <section class="window main-window" id="win-main">
-        <h1 class="titlebar"><span id="window-title">CH!Solver</span></h1>
+        <h1 class="titlebar"><span id="window-title">MK!Solver</span></h1>
         <div class="prompt" aria-live="polite">
           <span class="prompt-cell" id="prompt-cell">(1) Rule:</span>
           <span class="status-msg" id="status-msg">Type rules, give some inputs, then press ! to solve.</span>
@@ -160,7 +160,7 @@
             <li>Press <b>!</b> (or F9). Answers appear in the <b>Output</b> column.</li>
           </ol>
           <h3>Guesses and iteration</h3>
-          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, CH!Solver picks guess variables itself, starting at 1.</p>
+          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, MK!Solver picks guess variables itself, starting at 1.</p>
           <h3>Lists and plots</h3>
           <p>Set <b>St</b> to <b>L</b>, enter values on the Lists tab (or use Fill), then choose <b>List Solve</b>. Each row is solved in turn and output lists are filled and plotted.</p>
           <h3>Keys</h3>
@@ -186,7 +186,7 @@
     <div class="dialog-actions" id="dialog-actions"></div>
   </div>
 </div>
-<input type="file" id="file-input" accept=".chs,.json,application/json" hidden>
+<input type="file" id="file-input" accept=".mks,.chs,.json,application/json" hidden>
 
 <script src="js/engine.js"></script>
 <script src="js/examples.js"></script>

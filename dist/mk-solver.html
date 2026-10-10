@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CH!Solver</title>
+<title>MK!Solver</title>
 <style>
-/* CH Chicago: a true pixel font, rasterized from the public-domain ChicagoFLF
+/* MK Chicago: a true pixel font, rasterized from the public-domain ChicagoFLF
    on its native 12 px grid (see tools/font/). */
 @font-face {
-  font-family: "CH Chicago";
-  src: url("data:font/woff2;base64,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") format("woff2");
+  font-family: "MK Chicago";
+  src: url("data:font/woff2;base64,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") format("woff2");
   font-weight: normal; font-style: normal; font-display: block;
 }
 
-/* CH Monaco: an original pixel font drawn in the style of Monaco 9, the
+/* MK Monaco: an original pixel font drawn in the style of Monaco 9, the
    Mac's monospaced face, for sheet contents (see tools/font/build-monaco.py). */
 @font-face {
-  font-family: "CH Monaco";
-  src: url("data:font/woff2;base64,d09GMgABAAAAAAeAAAoAAAAAN/QAAAcyAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAgRQK2ijESAE2AiQDgWALgWAABCAFhQgHiGgbhSsRxaxE+MuBJnEtrt4guBBUcR6XHVTJAPsK5ehz9eQos7Sm+9fsxuX+eKjWel/vbMKbuwCq/3VA2EQoLE+gUJjpOh8QkixR+RjBoCIj28I1m8DeBMtWV20BE38RuvTOfzc8LPCMgAT3rp+4WRvXHsIZBtQF2gt9ABzMayneuhz9AAeIgNy2nyiWAylDLBzrxmJjF42K//20V+o3q+NaYGlyG278x8yQ/VlZurOW5dY0pq3B0o7uvRrve9p1T6NhCQwLDW6AV4ICzQNwIA3FAQDmMl26hLnSxMimbTid2XB7zA4nzBKEI7oyMZf6bf/W3vlUtMbctIKn7EiaNUvC/nH7zuV3zLo2ZoivD9nSeG5Q6PYWjdH/3NEHu8w1yctjz7302n+TNSVTM33rWX6rsOQRuJcxRVP9ZfVVPal7da0u+nLUmplyyHsBdjhik7/KCeecchJcAp9oF0y3mO8DgDlYD1byiiiqLKJIOIZBFQVBFESURZZHY1sUoC75JpvHze3KjFIv4gOpqlZXEzY9Kwxrko4mTCbl6IejjBaSIJlruWijCtbCPC4Ypv8R0jAiZ1J4nmU5QkblU10VMyOmxjp9Q1pKtdBCbnos7RIna2NzrpGRa6BhBG0ZE5SqPE0F0Yj0qgInsr0CHkFLzZQGWmiAKiJ05HHC7UKUtIjJ1sQlycrE1IAcChPZDNhuyZGCX0Cnf2MYMylMwizOCiiYAjkaow6jJZMwSEKGcewXJAgdsBiFVBh23mLOlT5EvbIQtVj+UgiZuL2WItllBr4CMfO8tmF5E5eOKCYd6GJjbnZnXj1AxBPiuLRZwcTYRIri6FDy6KwlzeCzNHCqCyF0mSB3OoU+iBud7ST4gdt0a5oM6EQlJyl+d+1+8DjJujGYjSRVsEb9VsQE/LoLC9abjF6MZWKn6q6zL3S3haQGgx8hmjVskb5hxN8xpEN1o416twUJuYC7twCbnDe8sW5wGrtZ4PpFFN1BwXGYDEDtkniGG0FETNPBMIGOMtRzseYLLElssTcYg1RG8au3bQ5imeTrm28WcX9e3ZG0crKrkp5AjVQ9QLz2UAjTyKwSGhCvbMHMKgEBccgS+d2hgLkyNIgD0MxahAhGJ28ClLBnr7cuZto8bjKaZll/ZV4mLlcxZh/vgIQqemOSCozAp92+C3gIi1z0rs4tM62qIy0JVWvQIGqPs9VTJc+YUGNo0NmSnp0jt0T6dajymFavIysj26+o0zkZMmilohcJSaDTWGeM1030UUlfTX0bykoZwZ6qJHRdzBT5UvaIqVPmq1NNF800WwNNRTxvHu1Ip1ymajxI5Z6qGJWsFEW6uhD8lca97AhlpOVTHEpauPwoUqnpIriInlTEOZPv7XUNZyzdptz1kMTpxb+ehf62XvqIRVXmm7H+TMR3NDoBXNfo5XeMBKXDLhzf3rqSUZbePCEyXNpurcMyUVaVh6uPtGpzzp0ujgOOmYcS6Htyv8/8VeFdaZl5rphgeI1VsdbrDPZdut4K9DqQng3DPGuML1lQPaT6tLlfqL3lr3Lc1NeAtv35ojynnFaPZVvUvGffp401elnOFIr2IJXnfGUIXofO29JeGBHTQdRUVGwKn/bgJL2927Cc+8943FZa7UQ5lLmznxmTM+q9Bqm+0/U+s+jKGIyVwgvausD0WqlnyvsdfQ5sf74s11//LreG3paJHmy6D5MHxNDd6rvACUizRX40Lo2EpfbSXvjZVZ9CeZVcqJ43zf5KkS68QPlOLD1CdT/U8RuAKHvSr6tdLuKU46H9La/+7v6Oz34fE379u/tR/0csQ7YFGgsIGLPQgBxSUP7NNOnycNAlB8ylhjjf4F+Eg6O4G6J9Wz6gU97sHMtHa1fzFbK/H19p5brGjGsAyve35SA65hyCx53DwrhyhB13juLjdw9jxv/9cMX77MtPki9qxT+x8z02RW45Bcjf0e1ZbY6eirT36v+J5NGfZ7HYsexbfqbc4qOjrQ3euI7TDwwNNMqPmBdgh/kSstM2RMGjuZWCsm3T6E3c7pusoQ1APxC0oTdpjtopTR8ufLBJduaW8+sDGQb4RQ20OepUpL1XE8C+s9PIoe8uMqsmCnQQHj56QXfeWvU5dY/hR98NRyNQ2Bgc1Ve+tokMDWA8tK5KfSfKf6UXCSmiJCuqphumZbM7nC6KZliOF0RJVlRNN0zLdlzPD8IoTtIsL8qqbtquH8ZpXtZtP04KlUZnMM3MLSytrG1s7ewdHJ2cXVzd3D08vbx9fP38WWwOl8cXCEViiVQmb90TURShDgJDoDA4AolCY7C47K9hAILAECgMjkCi0BgsLvtrBIAgMAQKgyOQKDQGi8v+GgUgCAyBwuAIJAqNweKyv8YACAJDoDA4AolCY7C47K9xAILAECgMjkCi0Bhsdiub2spQKCV9dYvNxvhrmg782NxMjEVkuYpsC510DAAA") format("woff2");
+  font-family: "MK Monaco";
+  src: url("data:font/woff2;base64,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") format("woff2");
   font-weight: normal; font-style: normal; font-display: block;
 }
 
@@ -32,8 +32,8 @@
   --paper: #ffffff;
   --ink: #000000;
   --gray: #808080;       /* only for placeholders and disabled items */
-  --font: "CH Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;          /* interface */
-  --mono: "CH Monaco", "Monaco", "Menlo", monospace;                                          /* sheet contents, 9 pt */
+  --font: "MK Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;          /* interface */
+  --mono: "MK Monaco", "Monaco", "Menlo", monospace;                                          /* sheet contents, 9 pt */
   --dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23fff'/%3E%3Crect width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3C/svg%3E");
   color-scheme: light;
 }
@@ -301,9 +301,9 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 <body>
 <header class="menubar" id="menubar">
   <div class="menu" data-menu="about">
-    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About CH!Solver">CH!</button>
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About MK!Solver">MK!</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="about">About CH!Solver…</button>
+      <button role="menuitem" data-cmd="about">About MK!Solver…</button>
       <button role="menuitem" data-cmd="guide">Quick Guide</button>
     </div>
   </div>
@@ -362,7 +362,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   <div class="columns">
     <div class="col-main">
       <section class="window main-window" id="win-main">
-        <h1 class="titlebar"><span id="window-title">CH!Solver</span></h1>
+        <h1 class="titlebar"><span id="window-title">MK!Solver</span></h1>
         <div class="prompt" aria-live="polite">
           <span class="prompt-cell" id="prompt-cell">(1) Rule:</span>
           <span class="status-msg" id="status-msg">Type rules, give some inputs, then press ! to solve.</span>
@@ -449,7 +449,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
             <li>Press <b>!</b> (or F9). Answers appear in the <b>Output</b> column.</li>
           </ol>
           <h3>Guesses and iteration</h3>
-          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, CH!Solver picks guess variables itself, starting at 1.</p>
+          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, MK!Solver picks guess variables itself, starting at 1.</p>
           <h3>Lists and plots</h3>
           <p>Set <b>St</b> to <b>L</b>, enter values on the Lists tab (or use Fill), then choose <b>List Solve</b>. Each row is solved in turn and output lists are filled and plotted.</p>
           <h3>Keys</h3>
@@ -475,11 +475,11 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
     <div class="dialog-actions" id="dialog-actions"></div>
   </div>
 </div>
-<input type="file" id="file-input" accept=".chs,.json,application/json" hidden>
+<input type="file" id="file-input" accept=".mks,.chs,.json,application/json" hidden>
 
 <script>
 /*
- * CH!Solver engine
+ * MK!Solver engine
  * ----------------
  * A declarative equation solver in the spirit of TK!Solver (Software Arts, 1982;
  * Macintosh edition 1984-85). Rules are equations, not assignments: any rule can
@@ -1379,7 +1379,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 
 </script>
 <script>
-/* Example models for CH!Solver. Each is a complete saved model. */
+/* Example models for MK!Solver. Each is a complete saved model. */
 (function (root) {
   'use strict';
   const range = (a, b, step) => { const out = []; for (let x = a; x <= b + 1e-9; x += step) out.push(String(+x.toFixed(10))); return out; };
@@ -1551,13 +1551,16 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 
 </script>
 <script>
-/* CH!Solver — user interface. Depends on CHEngine (engine.js) and CHExamples. */
+/* MK!Solver — user interface. Depends on CHEngine (engine.js) and CHExamples. */
 (function () {
   'use strict';
   const E = window.CHEngine;
   const EXAMPLES = window.CHExamples || [];
-  const STORE_KEY = 'ch-solver:model:v1';
-  const PREF_KEY = 'ch-solver:prefs:v1';
+  const STORE_KEY = 'mk-solver:model:v1';
+  const PREF_KEY = 'mk-solver:prefs:v1';
+  // Saved under the project's earlier name, CH!Solver; read once and carried over.
+  const OLD_KEYS = { [STORE_KEY]: 'ch-solver:model:v1', [PREF_KEY]: 'ch-solver:prefs:v1' };
+  const readStore = (key) => localStorage.getItem(key) ?? localStorage.getItem(OLD_KEYS[key]);
 
   const $ = (sel) => document.querySelector(sel);
   const fmt = (x) => E.formatNumber(x, 8);
@@ -1609,11 +1612,11 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
   function loadSaved() {
     try {
-      const p = JSON.parse(localStorage.getItem(PREF_KEY) || 'null');
+      const p = JSON.parse(readStore(PREF_KEY) || 'null');
       if (p) prefs = Object.assign(prefs, p);
     } catch (_) { /* ignore */ }
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = readStore(STORE_KEY);
       if (raw) return normalizeState(JSON.parse(raw));
     } catch (_) { /* ignore */ }
     return null;
@@ -2225,8 +2228,8 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   function closeDialog() { $('#dialog').hidden = true; }
 
   function about() {
-    dialog('About CH!Solver', [
-      h('div', { class: 'about-logo', text: 'CH!Solver' }),
+    dialog('About MK!Solver', [
+      h('div', { class: 'about-logo', text: 'MK!Solver' }),
       h('p', {}, 'A declarative equation solver for the browser, after TK!Solver (Software Arts, 1982), the program that let engineers type equations in any order and solve them for whatever was unknown.'),
       h('p', {}, 'Direct solver by consecutive substitution with symbolic inversion; iterative solver by damped Newton–Raphson (Levenberg–Marquardt) on guessed variables; list solving, units and plots.'),
       h('p', {}, 'Everything runs locally in your browser. Your model is kept in this browser’s storage.'),
@@ -2239,7 +2242,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
     // Drop data for variables no longer in any rule.
     for (const k of Object.keys(copy.vars)) if (!model.variables.includes(k)) delete copy.vars[k];
     for (const k of Object.keys(copy.lists)) if (!model.variables.includes(k)) delete copy.lists[k];
-    return JSON.stringify(Object.assign({ format: 'CH!Solver model', version: 1 }, copy), null, 2);
+    return JSON.stringify(Object.assign({ format: 'MK!Solver model', version: 1 }, copy), null, 2);
   }
 
   function textDialog() {
@@ -2263,7 +2266,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   function downloadModel() {
     try {
       const blob = new Blob([modelText()], { type: 'application/json' });
-      const a = h('a', { href: URL.createObjectURL(blob), download: `${(state.title || 'model').replace(/[^\w\- ]+/g, '').trim() || 'model'}.chs` });
+      const a = h('a', { href: URL.createObjectURL(blob), download: `${(state.title || 'model').replace(/[^\w\- ]+/g, '').trim() || 'model'}.mks` });
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       setStatus('Saved. If no file appeared, use File → Model as Text… and copy it.', 'ok');
@@ -2299,9 +2302,9 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
 
   function paintTitle() {
-    const t = state.title && state.title !== 'Untitled' ? `CH!Solver \u2014 ${state.title}` : 'CH!Solver';
+    const t = state.title && state.title !== 'Untitled' ? `MK!Solver \u2014 ${state.title}` : 'MK!Solver';
     $('#window-title').textContent = t;
-    document.title = state.title && state.title !== 'Untitled' ? `CH!Solver: ${state.title}` : 'CH!Solver';
+    document.title = state.title && state.title !== 'Untitled' ? `MK!Solver: ${state.title}` : 'MK!Solver';
   }
 
   // TK-style prompt line: "(row) Column:" for the cell being edited.
@@ -2349,7 +2352,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
         return;
       }
       case 'toggle-autoguess': prefs.autoGuess = !prefs.autoGuess; savePrefs(); paintOptions();
-        return setStatus(prefs.autoGuess ? 'Auto-guess on: CH!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
+        return setStatus(prefs.autoGuess ? 'Auto-guess on: MK!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
       case 'size:1': case 'size:2':
         prefs.size = Number(cmd.slice(5)); savePrefs(); applyScale(); paintOptions(); drawPlot(); return;
       case 'toggle-autosolve': prefs.autoSolve = !prefs.autoSolve; savePrefs(); paintOptions();
@@ -2371,7 +2374,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
       if (!f) return;
       const reader = new FileReader();
       reader.onload = () => {
-        try { loadState(JSON.parse(reader.result), { solve: true }); setStatus(`Opened ${f.name}.`, 'ok'); } catch (e) { setStatus(`${f.name} is not a CH!Solver model (${e.message}).`, 'err'); }
+        try { loadState(JSON.parse(reader.result), { solve: true }); setStatus(`Opened ${f.name}.`, 'ok'); } catch (e) { setStatus(`${f.name} is not a MK!Solver model (${e.message}).`, 'err'); }
       };
       reader.readAsText(f);
       ev.target.value = '';

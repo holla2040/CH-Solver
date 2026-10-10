@@ -1,4 +1,4 @@
-/* Example models for CH!Solver. Each is a complete saved model. */
+/* Example models for MK!Solver. Each is a complete saved model. */
 (function (root) {
   'use strict';
   const range = (a, b, step) => { const out = []; for (let x = a; x <= b + 1e-9; x += step) out.push(String(+x.toFixed(10))); return out; };

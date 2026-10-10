@@ -1,6 +1,6 @@
-# Build fonts/CHChicago.woff2 from chicago-12px.json:
+# Build fonts/MKChicago.woff2 from chicago-12px.json:
 #   pip install fonttools brotli
-#   python3 tools/font/build-font.py tools/font/chicago-12px.json fonts/CHChicago
+#   python3 tools/font/build-font.py tools/font/chicago-12px.json fonts/MKChicago
 import json, sys
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -90,9 +90,9 @@ fb.setupGlyf(tt)
 fb.setupHorizontalMetrics(metrics)
 ASC, DESC = 12 * P, 4 * P
 fb.setupHorizontalHeader(ascent=ASC, descent=-DESC)
-fb.setupNameTable({'familyName': 'CH Chicago', 'styleName': 'Regular',
+fb.setupNameTable({'familyName': 'MK Chicago', 'styleName': 'Regular',
   'copyright': 'Pixel rasterization of ChicagoFLF (public domain, Robin Casady). Public domain.',
-  'uniqueFontIdentifier': 'CHChicago-Regular-1.0', 'fullName': 'CH Chicago Regular', 'psName': 'CHChicago-Regular', 'version': 'Version 1.0'})
+  'uniqueFontIdentifier': 'MKChicago-Regular-1.0', 'fullName': 'MK Chicago Regular', 'psName': 'MKChicago-Regular', 'version': 'Version 1.0'})
 fb.setupOS2(sTypoAscender=ASC, sTypoDescender=-DESC, sTypoLineGap=0, usWinAscent=ASC, usWinDescent=DESC, sxHeight=7 * P, sCapHeight=9 * P, fsSelection=0x40 | 0x80)
 fb.setupPost()
 pass

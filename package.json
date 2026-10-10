@@ -1,7 +1,7 @@
 {
-  "name": "ch-solver",
+  "name": "mk-solver",
   "version": "0.1.0",
-  "description": "CH!Solver: a TK!Solver-style declarative equation solver that runs in the browser",
+  "description": "MK!Solver: a TK!Solver-style declarative equation solver that runs in the browser",
   "license": "MIT",
   "private": true,
   "scripts": {

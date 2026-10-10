@@ -1,16 +1,16 @@
-/* CH Chicago: a true pixel font, rasterized from the public-domain ChicagoFLF
+/* MK Chicago: a true pixel font, rasterized from the public-domain ChicagoFLF
    on its native 12 px grid (see tools/font/). */
 @font-face {
-  font-family: "CH Chicago";
-  src: url("../fonts/CHChicago.woff2") format("woff2");
+  font-family: "MK Chicago";
+  src: url("../fonts/MKChicago.woff2") format("woff2");
   font-weight: normal; font-style: normal; font-display: block;
 }
 
-/* CH Monaco: an original pixel font drawn in the style of Monaco 9, the
+/* MK Monaco: an original pixel font drawn in the style of Monaco 9, the
    Mac's monospaced face, for sheet contents (see tools/font/build-monaco.py). */
 @font-face {
-  font-family: "CH Monaco";
-  src: url("../fonts/CHMonaco.woff2") format("woff2");
+  font-family: "MK Monaco";
+  src: url("../fonts/MKMonaco.woff2") format("woff2");
   font-weight: normal; font-style: normal; font-display: block;
 }
 
@@ -25,8 +25,8 @@
   --paper: #ffffff;
   --ink: #000000;
   --gray: #808080;       /* only for placeholders and disabled items */
-  --font: "CH Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;          /* interface */
-  --mono: "CH Monaco", "Monaco", "Menlo", monospace;                                          /* sheet contents, 9 pt */
+  --font: "MK Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;          /* interface */
+  --mono: "MK Monaco", "Monaco", "Menlo", monospace;                                          /* sheet contents, 9 pt */
   --dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23fff'/%3E%3Crect width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3C/svg%3E");
   color-scheme: light;
 }

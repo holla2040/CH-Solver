@@ -1,8 +1,8 @@
-# Build fonts/CHMonaco.woff2: a hand-drawn pixel font in the style of the
+# Build fonts/MKMonaco.woff2: a hand-drawn pixel font in the style of the
 # Macintosh's Monaco 9 (6 px advance, 7 px caps, 5 px x-height, 2 px
-# descenders, slashed zero). Original drawing for CH!Solver; public domain.
+# descenders, slashed zero). Original drawing for MK!Solver; public domain.
 #   pip install fonttools brotli
-#   python3 tools/font/build-monaco.py fonts/CHMonaco
+#   python3 tools/font/build-monaco.py fonts/MKMonaco
 import sys
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -160,10 +160,10 @@ box = ['#####', '#...#', '#...#', '#...#', '#...#', '#...#', '#####', _, _]
 fb.setupGlyf({'.notdef': glyph(box), **{name(c): glyph(rows) for c, rows in G.items()}})
 fb.setupHorizontalMetrics({n: (ADV * P, 0) for n in order})
 fb.setupHorizontalHeader(ascent=ASC * P, descent=-DESC * P)
-fb.setupNameTable({'familyName': 'CH Monaco', 'styleName': 'Regular',
-                   'copyright': 'Original pixel drawing in the style of Monaco 9, for CH!Solver. Public domain.',
-                   'uniqueFontIdentifier': 'CHMonaco-Regular-1.0', 'fullName': 'CH Monaco Regular',
-                   'psName': 'CHMonaco-Regular', 'version': 'Version 1.0'})
+fb.setupNameTable({'familyName': 'MK Monaco', 'styleName': 'Regular',
+                   'copyright': 'Original pixel drawing in the style of Monaco 9, for MK!Solver. Public domain.',
+                   'uniqueFontIdentifier': 'MKMonaco-Regular-1.0', 'fullName': 'MK Monaco Regular',
+                   'psName': 'MKMonaco-Regular', 'version': 'Version 1.0'})
 fb.setupOS2(sTypoAscender=ASC * P, sTypoDescender=-DESC * P, sTypoLineGap=0,
             usWinAscent=ASC * P, usWinDescent=DESC * P, sxHeight=5 * P, sCapHeight=7 * P,
             xAvgCharWidth=ADV * P)

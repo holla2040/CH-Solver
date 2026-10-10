@@ -1,10 +1,13 @@
-/* CH!Solver — user interface. Depends on CHEngine (engine.js) and CHExamples. */
+/* MK!Solver — user interface. Depends on CHEngine (engine.js) and CHExamples. */
 (function () {
   'use strict';
   const E = window.CHEngine;
   const EXAMPLES = window.CHExamples || [];
-  const STORE_KEY = 'ch-solver:model:v1';
-  const PREF_KEY = 'ch-solver:prefs:v1';
+  const STORE_KEY = 'mk-solver:model:v1';
+  const PREF_KEY = 'mk-solver:prefs:v1';
+  // Saved under the project's earlier name, CH!Solver; read once and carried over.
+  const OLD_KEYS = { [STORE_KEY]: 'ch-solver:model:v1', [PREF_KEY]: 'ch-solver:prefs:v1' };
+  const readStore = (key) => localStorage.getItem(key) ?? localStorage.getItem(OLD_KEYS[key]);
 
   const $ = (sel) => document.querySelector(sel);
   const fmt = (x) => E.formatNumber(x, 8);
@@ -56,11 +59,11 @@
   }
   function loadSaved() {
     try {
-      const p = JSON.parse(localStorage.getItem(PREF_KEY) || 'null');
+      const p = JSON.parse(readStore(PREF_KEY) || 'null');
       if (p) prefs = Object.assign(prefs, p);
     } catch (_) { /* ignore */ }
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = readStore(STORE_KEY);
       if (raw) return normalizeState(JSON.parse(raw));
     } catch (_) { /* ignore */ }
     return null;
@@ -672,8 +675,8 @@
   function closeDialog() { $('#dialog').hidden = true; }
 
   function about() {
-    dialog('About CH!Solver', [
-      h('div', { class: 'about-logo', text: 'CH!Solver' }),
+    dialog('About MK!Solver', [
+      h('div', { class: 'about-logo', text: 'MK!Solver' }),
       h('p', {}, 'A declarative equation solver for the browser, after TK!Solver (Software Arts, 1982), the program that let engineers type equations in any order and solve them for whatever was unknown.'),
       h('p', {}, 'Direct solver by consecutive substitution with symbolic inversion; iterative solver by damped Newton–Raphson (Levenberg–Marquardt) on guessed variables; list solving, units and plots.'),
       h('p', {}, 'Everything runs locally in your browser. Your model is kept in this browser’s storage.'),
@@ -686,7 +689,7 @@
     // Drop data for variables no longer in any rule.
     for (const k of Object.keys(copy.vars)) if (!model.variables.includes(k)) delete copy.vars[k];
     for (const k of Object.keys(copy.lists)) if (!model.variables.includes(k)) delete copy.lists[k];
-    return JSON.stringify(Object.assign({ format: 'CH!Solver model', version: 1 }, copy), null, 2);
+    return JSON.stringify(Object.assign({ format: 'MK!Solver model', version: 1 }, copy), null, 2);
   }
 
   function textDialog() {
@@ -710,7 +713,7 @@
   function downloadModel() {
     try {
       const blob = new Blob([modelText()], { type: 'application/json' });
-      const a = h('a', { href: URL.createObjectURL(blob), download: `${(state.title || 'model').replace(/[^\w\- ]+/g, '').trim() || 'model'}.chs` });
+      const a = h('a', { href: URL.createObjectURL(blob), download: `${(state.title || 'model').replace(/[^\w\- ]+/g, '').trim() || 'model'}.mks` });
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       setStatus('Saved. If no file appeared, use File → Model as Text… and copy it.', 'ok');
@@ -746,9 +749,9 @@
   }
 
   function paintTitle() {
-    const t = state.title && state.title !== 'Untitled' ? `CH!Solver \u2014 ${state.title}` : 'CH!Solver';
+    const t = state.title && state.title !== 'Untitled' ? `MK!Solver \u2014 ${state.title}` : 'MK!Solver';
     $('#window-title').textContent = t;
-    document.title = state.title && state.title !== 'Untitled' ? `CH!Solver: ${state.title}` : 'CH!Solver';
+    document.title = state.title && state.title !== 'Untitled' ? `MK!Solver: ${state.title}` : 'MK!Solver';
   }
 
   // TK-style prompt line: "(row) Column:" for the cell being edited.
@@ -796,7 +799,7 @@
         return;
       }
       case 'toggle-autoguess': prefs.autoGuess = !prefs.autoGuess; savePrefs(); paintOptions();
-        return setStatus(prefs.autoGuess ? 'Auto-guess on: CH!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
+        return setStatus(prefs.autoGuess ? 'Auto-guess on: MK!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
       case 'size:1': case 'size:2':
         prefs.size = Number(cmd.slice(5)); savePrefs(); applyScale(); paintOptions(); drawPlot(); return;
       case 'toggle-autosolve': prefs.autoSolve = !prefs.autoSolve; savePrefs(); paintOptions();
@@ -818,7 +821,7 @@
       if (!f) return;
       const reader = new FileReader();
       reader.onload = () => {
-        try { loadState(JSON.parse(reader.result), { solve: true }); setStatus(`Opened ${f.name}.`, 'ok'); } catch (e) { setStatus(`${f.name} is not a CH!Solver model (${e.message}).`, 'err'); }
+        try { loadState(JSON.parse(reader.result), { solve: true }); setStatus(`Opened ${f.name}.`, 'ok'); } catch (e) { setStatus(`${f.name} is not a MK!Solver model (${e.message}).`, 'err'); }
       };
       reader.readAsText(f);
       ev.target.value = '';

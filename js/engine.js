@@ -1,5 +1,5 @@
 /*
- * CH!Solver engine
+ * MK!Solver engine
  * ----------------
  * A declarative equation solver in the spirit of TK!Solver (Software Arts, 1982;
  * Macintosh edition 1984-85). Rules are equations, not assignments: any rule can
