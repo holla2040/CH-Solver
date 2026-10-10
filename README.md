@@ -41,13 +41,13 @@ Rule Sheet marks: `*` means the rule isn't satisfied (inconsistent inputs), `!` 
 
 **Examples (File menu):** Right Triangle, Three Simultaneous Equations, Mortgage Payment (backsolve the rate), Voltage Divider (backsolve a resistor), Crossed Ladders, Projectile Range (list solve + units + plot), Pipe Friction (implicit Colebrook equation), and Ideal Gas (unit offsets).
 
-Your model is autosaved in the browser's local storage. Use File → Save / Open for `.mks` files (JSON; older `.chs` files still open), or File → Model as Text… to copy or paste a model.
+Your model is autosaved in the browser's local storage. Use File → Save / Open for `.mks` files (JSON), or File → Model as Text… to copy or paste a model.
 
 ---
 
-## Research: TK!Solver
+## About TK!Solver
 
-**Who made it.** TK!Solver ("TK" for *Tool Kit*) was invented by **Milos Konopasek**, a Czech-born mechanical engineer. (He was Czech, not Polish.) It grew out of a "question answering" equation system he had built earlier at the University of Manchester. **Software Arts**, the company Dan Bricklin and Bob Frankston founded to make VisiCalc, developed it with Konopasek as Senior Scientist, and released it in **1982**, first for DOS PCs. Ports followed for other machines, including the TRS-80 Model 4, the DEC Rainbow and Professional, and the **Macintosh**. A Mac edition was listed in Macworld's *Macware News* in the Sept/Oct 1984 issue, and the Macintosh Repository lists it as running on Mac OS 1.0–6.0, so it was available on the very early 128K/512K Macs. I couldn't find a primary source pinning the Mac ship date to 1984 or 1985.
+**Who made it.** TK!Solver ("TK" for *Tool Kit*) was invented by **Milos Konopasek**, a Czech-born mechanical engineer. It grew out of a "question answering" equation system he had built earlier at the University of Manchester. **Software Arts**, the company Dan Bricklin and Bob Frankston founded to make VisiCalc, developed it with Konopasek as Senior Scientist, and released it in **1982**, first for DOS PCs. Ports followed for other machines, including the TRS-80 Model 4, the DEC Rainbow and Professional, and the **Macintosh**. A Mac edition was listed in Macworld's *Macware News* in the Sept/Oct 1984 issue, and the Macintosh Repository lists it as running on Mac OS 1.0–6.0, so it was available on the very early 128K/512K Macs. Whether the Mac version shipped in 1984 or 1985 isn't settled by a primary source.
 
 **What happened to it.** Software Arts ran into financial trouble, Lotus bought the company in the mid-1980s, and TK!Solver went to **Universal Technical Systems (UTS)** of Rockford, Illinois. Sources disagree on whether these deals happened in 1984 or 1985. Konopasek went with it as a vice president. UTS still sells TK Solver for Windows today.
 
@@ -64,9 +64,9 @@ Behind the sheets were two solvers:
 
 **List solving** re-ran the model once per element of input lists, and that was what drove plots and tables.
 
-## Is this feasible in JavaScript?
+## How MK!Solver compares
 
-**Yes, and comfortably.** Nothing in TK!Solver needs more than a 1984 Macintosh had, and a modern JS engine is many thousands of times faster. The pieces map directly:
+Nothing in TK!Solver needed more than a 1984 Macintosh had, so it runs easily in a browser. Each part of TK!Solver has a counterpart here:
 
 | TK!Solver | MK!Solver (this repo) |
 |-----------|-----------------------|
