@@ -313,7 +313,7 @@
   }
 
   function solveNow(quiet) {
-    if (!quiet) flash('#solve-btn');
+    if (!quiet) flash('.bang');
     const { inputs, guesses, bad, U } = gatherInputs();
     if (bad.length) { setStatus(`Input for ${bad.join(', ')} is not a number.`, 'err'); return; }
     if (!model.rules.some((r) => r.ok)) { setStatus('Type a rule first, for example  c^2 = a^2 + b^2', 'err'); return; }
@@ -334,7 +334,7 @@
   }
 
   function listSolveNow() {
-    flash('#list-solve-btn');
+    flash(null);
     const lvars = model.variables.filter((v) => vdata(v).st === 'L');
     const inputLists = lvars.filter((v) => {
       const l = state.lists[v];
@@ -375,8 +375,8 @@
   }
 
   function flash(sel) {
-    const b = $(sel); if (!b) return;
-    b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 120);
+    if (!sel) return;
+    document.querySelectorAll(sel).forEach((b) => { b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 120); });
   }
 
   // ------------------------------------------------------------------ lists
@@ -505,7 +505,7 @@
     if (!data.length) {
       ctx.fillStyle = dim; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(listNames().length ? 'Choose List Solve to fill the lists, then pick a Y series.' : 'No lists to plot yet.', W / 2, H / 2);
-      note.textContent = 'Try Examples → Projectile Range for a ready-made list solve.';
+      note.textContent = 'Try File → Projectile Range for a ready-made list solve.';
       return;
     }
     note.textContent = `${data.reduce((s, d) => s + d.pts.length, 0)} points · ${data.map((d) => d.name).join(', ')} vs ${xName}`;
@@ -617,7 +617,7 @@
   }
   function setupMenus() {
     const panel = $('#examples-panel');
-    EXAMPLES.forEach((ex) => panel.append(h('button', { role: 'menuitem', 'data-cmd': `example:${ex.id}` }, h('span', { text: ex.title }), h('span', { class: 'ex-desc', text: ex.desc }))));
+    EXAMPLES.filter((ex) => ex.id !== 'blank').forEach((ex) => panel.append(h('button', { role: 'menuitem', 'data-cmd': `example:${ex.id}`, title: ex.desc }, ex.title)));
     document.querySelectorAll('.menu').forEach((menu) => {
       const title = menu.querySelector('.menu-title');
       title.addEventListener('click', (ev) => {
@@ -729,7 +729,7 @@
     renderUnits();
     renderLists();
     renderPlotControls();
-    $('#model-title').textContent = state.title;
+    paintTitle();
     save();
     if (opts && opts.solve) solveNow(true);
   }
@@ -745,8 +745,31 @@
     const first = $('#rule-0'); if (first && id === 'blank') first.focus();
   }
 
+  function paintTitle() {
+    const t = state.title && state.title !== 'Untitled' ? `CH!Solver \u2014 ${state.title}` : 'CH!Solver';
+    $('#window-title').textContent = t;
+    document.title = state.title && state.title !== 'Untitled' ? `CH!Solver: ${state.title}` : 'CH!Solver';
+  }
+
+  // TK-style prompt line: "(row) Column:" for the cell being edited.
+  function paintPrompt(el) {
+    if (!el || !el.id) return;
+    let m;
+    if ((m = /^rule-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[1] + 1}) Rule:`);
+    if ((m = /^var-(st|in|unit|com)-(.+)$/.exec(el.id))) {
+      const row = shownVars.indexOf(m[2]) + 1;
+      return setPrompt(`(${row}) ${({ st: 'Status', in: 'Input', unit: 'Unit', com: 'Comment' })[m[1]]}: ${m[2]}`);
+    }
+    if ((m = /^list-(.+)-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[2] + 1}) List: ${m[1]}`);
+    if ((m = /^unit-(\w+)-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[2] + 1}) Unit: ${m[1]}`);
+  }
+  function setPrompt(text) { $('#prompt-cell').textContent = text; }
+
   function command(cmd) {
     if (cmd.startsWith('example:')) return loadExample(cmd.slice(8));
+    if (cmd.startsWith('tab:')) return selectTab(cmd.slice(4));
+    if (cmd === 'focus:vars') { const el = document.querySelector('#var-body input[data-col="in"]'); if (el) el.focus(); return; }
+    if (cmd === 'focus:rules') { const el = $('#rule-0'); if (el) el.focus(); return; }
     switch (cmd) {
       case 'about': return about();
       case 'guide': return selectTab('guide');
@@ -785,8 +808,7 @@
 
   function init() {
     setupMenus();
-    $('#solve-btn').addEventListener('click', () => solveNow());
-    $('#list-solve-btn').addEventListener('click', () => listSolveNow());
+    document.addEventListener('focusin', (ev) => paintPrompt(ev.target));
     $('#fill-form').addEventListener('submit', onFill);
     $('#plot-x').addEventListener('change', (ev) => { state.plot.x = ev.target.value; state.plot.y = state.plot.y.filter((y) => y !== state.plot.x); save(); renderPlotControls(); });
     document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.addEventListener('click', () => selectTab(b.dataset.tab)));
@@ -801,9 +823,9 @@
       reader.readAsText(f);
       ev.target.value = '';
     });
-    $('#model-title').addEventListener('dblclick', () => {
+    $('#window-title').addEventListener('dblclick', () => {
       const ta = h('input', { id: 'title-edit', value: state.title, 'aria-label': 'Model name', style: 'width:100%;padding:0.3rem;border:1px solid currentColor;background:transparent' });
-      dialog('Rename Model', [ta], [{ label: 'Cancel' }, { label: 'Rename', default: true, run: () => { state.title = ta.value.trim() || 'Untitled'; $('#model-title').textContent = state.title; save(); } }]);
+      dialog('Rename Model', [ta], [{ label: 'Cancel' }, { label: 'Rename', default: true, run: () => { state.title = ta.value.trim() || 'Untitled'; paintTitle(); save(); } }]);
     });
 
     document.addEventListener('keydown', (ev) => {
@@ -819,6 +841,7 @@
         if (!textish) { ev.preventDefault(); solveNow(); }
       }
     });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawPlot);
     let rt = null;
     window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { applyScale(); paintOptions(); drawPlot(); }, 80); });
 
@@ -830,7 +853,7 @@
       if (state.title) setStatus(`Welcome back — “${state.title}” restored. Press ! to solve.`, '');
     } else {
       loadExample('triangle');
-      setStatus('Example loaded: Right Triangle. Change an input and press ! — or try Examples in the menu bar.', 'ok');
+      setStatus('Example loaded: Right Triangle. Change an input and press ! — more examples are in the File menu.', 'ok');
     }
   }
 

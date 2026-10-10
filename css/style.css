@@ -56,6 +56,14 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 ::-webkit-scrollbar { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
 ::-webkit-scrollbar-track { background: var(--dither); background-size: calc(2 * var(--u)) calc(2 * var(--u)); border: var(--u) solid var(--ink); }
 ::-webkit-scrollbar-thumb { background: var(--paper); border: var(--u) solid var(--ink); }
+::-webkit-scrollbar-button:single-button { display: block; background-color: var(--paper); border: var(--u) solid var(--ink); background-repeat: no-repeat; background-position: center; background-size: 75% 75%; }
+::-webkit-scrollbar-button:single-button:vertical { height: calc(16 * var(--u)); }
+::-webkit-scrollbar-button:single-button:horizontal { width: calc(16 * var(--u)); }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M6 1.5 1.5 6.5H4v4h4v-4h2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M6 10.5 1.5 5.5H4v-4h4v4h2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M1.5 6 6.5 1.5V4h4v4h-4v2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M10.5 6 5.5 1.5V4h-4v4h4v2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-corner { background: var(--paper); }
 
 /* ---------------------------------------------------------------- menu bar */
 .menubar {
@@ -92,11 +100,8 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .menu-panel kbd { font: inherit; }
 .menu-panel hr { border: 0; border-top: var(--u) dotted var(--ink); margin: 0; width: 100%; height: 0; }
 .menu-panel .ex-desc { display: block; white-space: normal; }
-#examples-panel button { flex-direction: column; gap: 0; max-width: calc(300 * var(--u)); white-space: normal; padding-block: calc(2 * var(--u)); }
-#examples-panel .ex-desc { color: var(--gray); }
-#examples-panel button:hover .ex-desc { color: var(--paper); }
-.menubar-spacer { flex: 1; }
-.menubar-model { align-self: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; padding-right: calc(4 * var(--u)); }
+#examples-panel { display: flex; flex-direction: column; }
+.menu-label { padding: 0 calc(12 * var(--u)) 0 calc(16 * var(--u)); color: var(--gray); }
 
 /* ---------------------------------------------------------------- desk */
 .desk {
@@ -126,13 +131,6 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   background-repeat: no-repeat;
 }
 .titlebar span { background: var(--paper); padding: 0 calc(6 * var(--u)); white-space: nowrap; line-height: calc(16 * var(--u)); }
-/* close box */
-.titlebar::before {
-  content: ""; position: absolute; left: calc(8 * var(--u)); top: calc(3 * var(--u));
-  width: calc(11 * var(--u)); height: calc(11 * var(--u));
-  background: var(--paper); border: var(--u) solid var(--ink);
-  box-shadow: 0 0 0 var(--u) var(--paper);
-}
 
 /* ---------------------------------------------------------------- buttons */
 .btn {
@@ -142,29 +140,57 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .btn.default { box-shadow: 0 0 0 var(--u) var(--paper), 0 0 0 calc(4 * var(--u)) var(--ink); margin: calc(4 * var(--u)); border-radius: calc(7 * var(--u)); }
 .btn:active, .btn.flash { background: var(--ink); color: var(--paper); }
 
-/* ---------------------------------------------------------------- status line */
-.status { display: flex; flex-wrap: wrap; align-items: center; gap: calc(8 * var(--u)) calc(12 * var(--u)); padding: calc(6 * var(--u)) calc(10 * var(--u)); }
+/* ---------------------------------------------------------------- prompt line */
+/* As in TK!Solver: the line under the title bar names the current cell and
+   carries the solver's messages. */
+.prompt {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 calc(16 * var(--u));
+  min-height: calc(19 * var(--u)); padding: calc(1 * var(--u)) calc(6 * var(--u));
+  border-bottom: var(--u) solid var(--ink);
+}
+.prompt-cell { font-family: var(--mono); font-size: calc(9 * var(--u)); white-space: nowrap; min-width: calc(110 * var(--u)); }
 .status-msg { margin: 0; flex: 1 1 calc(240 * var(--u)); min-width: 0; }
 .status-msg.ok::before { content: "✓ "; }
 .status-msg.err::before { content: "✗ "; }
 .status-msg .tag { display: inline-block; border: var(--u) solid var(--ink); padding: 0 calc(4 * var(--u)); margin-left: calc(6 * var(--u)); line-height: calc(14 * var(--u)); }
 
+/* Sheet header band: 50% dither, a "!" (solve) box and a boxed sheet name. */
+.sheet-bar {
+  position: relative; height: calc(16 * var(--u));
+  background: var(--dither); background-size: calc(2 * var(--u)) calc(2 * var(--u));
+  border-bottom: var(--u) solid var(--ink);
+  display: flex; align-items: stretch; justify-content: center;
+}
+.pane-scroll + .sheet-bar { border-top: var(--u) solid var(--ink); }
+.sheet-bar h2 {
+  margin: 0; font: inherit; background: var(--paper); padding: 0 calc(10 * var(--u));
+  border-inline: var(--u) solid var(--ink); line-height: calc(15 * var(--u)); white-space: nowrap;
+}
+.bang {
+  position: absolute; left: 15%; top: 0; bottom: 0; width: calc(22 * var(--u));
+  border: 0; border-inline: var(--u) solid var(--ink); background: var(--paper); padding: 0; cursor: default;
+}
+.bang:active, .bang.flash { background: var(--ink); color: var(--paper); }
+
 /* ---------------------------------------------------------------- sheets */
 .sheet-scroll { overflow-x: auto; }
+.pane-scroll { overflow-y: scroll; scrollbar-gutter: stable; }
+#vars-scroll { height: calc(13 * 13 * var(--u) + 18 * var(--u)); }
+#rules-scroll { height: calc(13 * 10 * var(--u) + 18 * var(--u)); }
+.pane-scroll thead th { position: sticky; top: 0; background: var(--paper); z-index: 1; }
 .sheet { border-collapse: collapse; width: 100%; }
 .sheet th {
   font-weight: normal; text-align: left; white-space: nowrap;
-  padding: calc(2 * var(--u)) calc(5 * var(--u)) calc(1 * var(--u));
-  border-bottom: var(--u) solid var(--ink);
+  font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u));
+  padding: calc(3 * var(--u)) calc(5 * var(--u)) calc(2 * var(--u));
 }
+.sheet th u { text-decoration: underline; text-underline-offset: calc(2 * var(--u)); text-decoration-thickness: var(--u); }
 .sheet td {
-  border-bottom: var(--u) dotted var(--ink); padding: 0; height: calc(15 * var(--u)); vertical-align: middle;
+  padding: 0; height: calc(13 * var(--u)); vertical-align: middle;
   font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u));
 }
-.sheet tbody tr:last-child td { border-bottom: 0; }
-.sheet td + td, .sheet th + th { border-left: var(--u) solid var(--ink); }
 .sheet input {
-  width: 100%; height: calc(14 * var(--u)); border: 0; border-radius: 0; background: transparent;
+  width: 100%; height: calc(13 * var(--u)); border: 0; border-radius: 0; background: transparent;
   padding: 0 calc(5 * var(--u)); display: block; font: inherit;
 }
 .sheet input:focus { outline: none; background: var(--ink); color: var(--paper); caret-color: var(--paper); }
@@ -175,6 +201,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .vars col.c-st { width: calc(26 * var(--u)); } .vars col.c-in { width: 18%; } .vars col.c-name { width: 15%; }
 .vars col.c-out { width: 20%; } .vars col.c-unit { width: 11%; }
 .vars .st input, .rules td.st { text-align: center; text-transform: uppercase; }
+.vars th:first-child, .rules th:first-child { text-align: center; }
 .vars td.out.has { cursor: copy; }
 .vars td.out.fresh { animation: blink 0.4s steps(2, jump-none) 1; }
 .vars .empty td, .lists .empty td { padding: calc(4 * var(--u)) calc(5 * var(--u)); color: var(--gray); font-family: var(--font); font-size: calc(12 * var(--u)); line-height: calc(16 * var(--u)); }
@@ -259,6 +286,5 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 
 @media (max-width: 560px) {
   .menu-title { padding: 0 calc(6 * var(--u)); }
-  .menubar-model { display: none; }
   .menu-panel { position: fixed; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 20 * var(--u)); min-width: 0; }
 }

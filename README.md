@@ -45,7 +45,7 @@ Rule Sheet marks: `*` means the rule isn't satisfied (inconsistent inputs), `!` 
 * **Lists:** set St = `L`, then type values or use Fill (from / to / steps). Lists you type are inputs; List Solve fills the others. Each row starts from the previous row's answer, which helps iterative models follow a curve.
 * **Plot:** pick an X list and one or more Y lists. The plot uses 1-bit line styles to fit the period.
 
-**Examples menu:** Right Triangle, Three Simultaneous Equations, Mortgage Payment (backsolve the rate), Crossed Ladders, Projectile Range (list solve + units + plot), Pipe Friction (implicit Colebrook equation), and Ideal Gas (unit offsets).
+**Examples (File menu):** Right Triangle, Three Simultaneous Equations, Mortgage Payment (backsolve the rate), Crossed Ladders, Projectile Range (list solve + units + plot), Pipe Friction (implicit Colebrook equation), and Ideal Gas (unit offsets).
 
 Your model is autosaved in the browser's local storage. Use File → Save / Open for `.chs` files (JSON), or File → Model as Text… to copy or paste a model.
 
@@ -79,7 +79,7 @@ Behind the sheets were two solvers:
 | Rule parser | Hand-written tokenizer and recursive-descent parser to an AST, compiled to JS closures (`js/engine.js`) |
 | Direct solver | Consecutive substitution. A rule with one unknown is inverted **symbolically** when the unknown appears once (through `+ − × ÷ ^`, `sin`/`asin`, `exp`/`ln`, `sqrt`, …). Otherwise it falls back to a **numeric 1-D root finder** (damped Newton, multi-start, then a bracketing scan with a regula-falsi/bisection hybrid). |
 | Iterative solver (Newton–Raphson on guesses) | Same structure as TK: guesses → direct solver → leftover rules become residuals. These are driven to zero with **Levenberg–Marquardt**, a damped Gauss–Newton that becomes plain Newton–Raphson near the answer and doesn't blow up far from it. The Jacobian comes from central differences. |
-| "Supply a guess" | Still supported. CH!Solver adds **Auto-guess** (on by default, can be turned off in the Solve menu): if you didn't give enough guesses, it picks variables using a tearing heuristic (guess the unknown shared by the most stuck rules), tries alternative choices and several starting values, and tells you which variables it guessed. |
+| "Supply a guess" | Still supported. CH!Solver adds **Auto-guess** (on by default, can be turned off in the Settings menu): if you didn't give enough guesses, it picks variables using a tearing heuristic (guess the unknown shared by the most stuck rules), tries alternative choices and several starting values, and tells you which variables it guessed. |
 | List solver | Re-solves per row, seeding each row from the last answer (continuation). |
 | Units sheet | Display ↔ calculation unit conversion with factor and offset. |
 | Plot sheet | `<canvas>` line plot. |
@@ -117,10 +117,10 @@ tools/build-single.js inlines everything into dist/ch-solver.html
 * [TK Solver 3.0 review, Design News](https://www.designnews.com/motion-control/tk-solver-3-0)
 * [TK Solver 5.0, R&D World](https://www.rdworldonline.com/tksolver-5-0-rules-based-mathematical-solutions/)
 
-**The look.** The interface copies the original 1984 Macintosh: 1-bit black and white, a 50% dithered desktop, striped title bars with close boxes, rounded-rectangle buttons, and two bitmap fonts: **Chicago** for menus, title bars, buttons, headers and messages, and **Monaco** (9 pt) for what you type and read in the sheets, meaning rules, variables, values, units, comments and lists. There's no dark theme, on purpose.
+**The look.** The layout follows a screenshot of the original TK!Solver for Macintosh: the menus are File, Edit, Sheets, Commands and Settings. One window holds a prompt line, then the Variable Sheet above the Rule Sheet. Each sheet has a dithered header band with a **!** box that solves the model, underlined column headings, and no grid lines. The styling copies the original 1984 Macintosh: 1-bit black and white, a 50% dithered desktop, striped title bars with close boxes, rounded-rectangle buttons, and two bitmap fonts: **Chicago** for menus, title bars, buttons, headers and messages, and **Monaco** (9 pt) for what you type and read in the sheets, meaning rules, variables, values, units, comments and lists. There's no dark theme, on purpose.
 
 **The font.** `fonts/CHChicago.woff2` is a true pixel font: each glyph is made of square pixels on Chicago 12's 12-pixel grid. It was made by rasterizing **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's Chicago, on its native grid. A few glyphs were then fixed by hand: the three-pixel descenders on g, j, p, q and y, plus `%`, `&`, `<`, `>`, `` ` `` and the arrows. The result is public domain too.
 
-`fonts/CHMonaco.woff2` is an original pixel drawing in the style of Monaco 9: 6-pixel cells, 7-pixel capitals, a slashed zero (`tools/font/build-monaco.py`). It is also public domain. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **View → Double Size** doubles every pixel, and large screens use double size by default.
+`fonts/CHMonaco.woff2` is an original pixel drawing in the style of Monaco 9: 6-pixel cells, 7-pixel capitals, a slashed zero (`tools/font/build-monaco.py`). It is also public domain. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **Settings → Double Size** doubles every pixel, and large screens use double size by default.
 
 TK!Solver is a trademark of Universal Technical Systems, Inc. CH!Solver is an independent homage and is not affiliated with UTS.

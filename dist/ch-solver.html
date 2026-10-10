@@ -63,6 +63,14 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 ::-webkit-scrollbar { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
 ::-webkit-scrollbar-track { background: var(--dither); background-size: calc(2 * var(--u)) calc(2 * var(--u)); border: var(--u) solid var(--ink); }
 ::-webkit-scrollbar-thumb { background: var(--paper); border: var(--u) solid var(--ink); }
+::-webkit-scrollbar-button:single-button { display: block; background-color: var(--paper); border: var(--u) solid var(--ink); background-repeat: no-repeat; background-position: center; background-size: 75% 75%; }
+::-webkit-scrollbar-button:single-button:vertical { height: calc(16 * var(--u)); }
+::-webkit-scrollbar-button:single-button:horizontal { width: calc(16 * var(--u)); }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M6 1.5 1.5 6.5H4v4h4v-4h2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M6 10.5 1.5 5.5H4v-4h4v4h2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M1.5 6 6.5 1.5V4h4v4h-4v2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath fill='none' stroke='%23000' d='M10.5 6 5.5 1.5V4h-4v4h4v2.5z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-corner { background: var(--paper); }
 
 /* ---------------------------------------------------------------- menu bar */
 .menubar {
@@ -99,11 +107,8 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .menu-panel kbd { font: inherit; }
 .menu-panel hr { border: 0; border-top: var(--u) dotted var(--ink); margin: 0; width: 100%; height: 0; }
 .menu-panel .ex-desc { display: block; white-space: normal; }
-#examples-panel button { flex-direction: column; gap: 0; max-width: calc(300 * var(--u)); white-space: normal; padding-block: calc(2 * var(--u)); }
-#examples-panel .ex-desc { color: var(--gray); }
-#examples-panel button:hover .ex-desc { color: var(--paper); }
-.menubar-spacer { flex: 1; }
-.menubar-model { align-self: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; padding-right: calc(4 * var(--u)); }
+#examples-panel { display: flex; flex-direction: column; }
+.menu-label { padding: 0 calc(12 * var(--u)) 0 calc(16 * var(--u)); color: var(--gray); }
 
 /* ---------------------------------------------------------------- desk */
 .desk {
@@ -133,13 +138,6 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   background-repeat: no-repeat;
 }
 .titlebar span { background: var(--paper); padding: 0 calc(6 * var(--u)); white-space: nowrap; line-height: calc(16 * var(--u)); }
-/* close box */
-.titlebar::before {
-  content: ""; position: absolute; left: calc(8 * var(--u)); top: calc(3 * var(--u));
-  width: calc(11 * var(--u)); height: calc(11 * var(--u));
-  background: var(--paper); border: var(--u) solid var(--ink);
-  box-shadow: 0 0 0 var(--u) var(--paper);
-}
 
 /* ---------------------------------------------------------------- buttons */
 .btn {
@@ -149,29 +147,57 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .btn.default { box-shadow: 0 0 0 var(--u) var(--paper), 0 0 0 calc(4 * var(--u)) var(--ink); margin: calc(4 * var(--u)); border-radius: calc(7 * var(--u)); }
 .btn:active, .btn.flash { background: var(--ink); color: var(--paper); }
 
-/* ---------------------------------------------------------------- status line */
-.status { display: flex; flex-wrap: wrap; align-items: center; gap: calc(8 * var(--u)) calc(12 * var(--u)); padding: calc(6 * var(--u)) calc(10 * var(--u)); }
+/* ---------------------------------------------------------------- prompt line */
+/* As in TK!Solver: the line under the title bar names the current cell and
+   carries the solver's messages. */
+.prompt {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 calc(16 * var(--u));
+  min-height: calc(19 * var(--u)); padding: calc(1 * var(--u)) calc(6 * var(--u));
+  border-bottom: var(--u) solid var(--ink);
+}
+.prompt-cell { font-family: var(--mono); font-size: calc(9 * var(--u)); white-space: nowrap; min-width: calc(110 * var(--u)); }
 .status-msg { margin: 0; flex: 1 1 calc(240 * var(--u)); min-width: 0; }
 .status-msg.ok::before { content: "✓ "; }
 .status-msg.err::before { content: "✗ "; }
 .status-msg .tag { display: inline-block; border: var(--u) solid var(--ink); padding: 0 calc(4 * var(--u)); margin-left: calc(6 * var(--u)); line-height: calc(14 * var(--u)); }
 
+/* Sheet header band: 50% dither, a "!" (solve) box and a boxed sheet name. */
+.sheet-bar {
+  position: relative; height: calc(16 * var(--u));
+  background: var(--dither); background-size: calc(2 * var(--u)) calc(2 * var(--u));
+  border-bottom: var(--u) solid var(--ink);
+  display: flex; align-items: stretch; justify-content: center;
+}
+.pane-scroll + .sheet-bar { border-top: var(--u) solid var(--ink); }
+.sheet-bar h2 {
+  margin: 0; font: inherit; background: var(--paper); padding: 0 calc(10 * var(--u));
+  border-inline: var(--u) solid var(--ink); line-height: calc(15 * var(--u)); white-space: nowrap;
+}
+.bang {
+  position: absolute; left: 15%; top: 0; bottom: 0; width: calc(22 * var(--u));
+  border: 0; border-inline: var(--u) solid var(--ink); background: var(--paper); padding: 0; cursor: default;
+}
+.bang:active, .bang.flash { background: var(--ink); color: var(--paper); }
+
 /* ---------------------------------------------------------------- sheets */
 .sheet-scroll { overflow-x: auto; }
+.pane-scroll { overflow-y: scroll; scrollbar-gutter: stable; }
+#vars-scroll { height: calc(13 * 13 * var(--u) + 18 * var(--u)); }
+#rules-scroll { height: calc(13 * 10 * var(--u) + 18 * var(--u)); }
+.pane-scroll thead th { position: sticky; top: 0; background: var(--paper); z-index: 1; }
 .sheet { border-collapse: collapse; width: 100%; }
 .sheet th {
   font-weight: normal; text-align: left; white-space: nowrap;
-  padding: calc(2 * var(--u)) calc(5 * var(--u)) calc(1 * var(--u));
-  border-bottom: var(--u) solid var(--ink);
+  font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u));
+  padding: calc(3 * var(--u)) calc(5 * var(--u)) calc(2 * var(--u));
 }
+.sheet th u { text-decoration: underline; text-underline-offset: calc(2 * var(--u)); text-decoration-thickness: var(--u); }
 .sheet td {
-  border-bottom: var(--u) dotted var(--ink); padding: 0; height: calc(15 * var(--u)); vertical-align: middle;
+  padding: 0; height: calc(13 * var(--u)); vertical-align: middle;
   font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u));
 }
-.sheet tbody tr:last-child td { border-bottom: 0; }
-.sheet td + td, .sheet th + th { border-left: var(--u) solid var(--ink); }
 .sheet input {
-  width: 100%; height: calc(14 * var(--u)); border: 0; border-radius: 0; background: transparent;
+  width: 100%; height: calc(13 * var(--u)); border: 0; border-radius: 0; background: transparent;
   padding: 0 calc(5 * var(--u)); display: block; font: inherit;
 }
 .sheet input:focus { outline: none; background: var(--ink); color: var(--paper); caret-color: var(--paper); }
@@ -182,6 +208,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .vars col.c-st { width: calc(26 * var(--u)); } .vars col.c-in { width: 18%; } .vars col.c-name { width: 15%; }
 .vars col.c-out { width: 20%; } .vars col.c-unit { width: 11%; }
 .vars .st input, .rules td.st { text-align: center; text-transform: uppercase; }
+.vars th:first-child, .rules th:first-child { text-align: center; }
 .vars td.out.has { cursor: copy; }
 .vars td.out.fresh { animation: blink 0.4s steps(2, jump-none) 1; }
 .vars .empty td, .lists .empty td { padding: calc(4 * var(--u)) calc(5 * var(--u)); color: var(--gray); font-family: var(--font); font-size: calc(12 * var(--u)); line-height: calc(16 * var(--u)); }
@@ -266,7 +293,6 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 
 @media (max-width: 560px) {
   .menu-title { padding: 0 calc(6 * var(--u)); }
-  .menubar-model { display: none; }
   .menu-panel { position: fixed; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 20 * var(--u)); min-width: 0; }
 }
 
@@ -275,7 +301,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 <body>
 <header class="menubar" id="menubar">
   <div class="menu" data-menu="about">
-    <button class="menu-title" id="menu-about" aria-haspopup="true" aria-expanded="false">CH!Solver</button>
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About CH!Solver">CH!</button>
     <div class="menu-panel" role="menu">
       <button role="menuitem" data-cmd="about">About CH!Solver…</button>
       <button role="menuitem" data-cmd="guide">Quick Guide</button>
@@ -284,11 +310,14 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   <div class="menu" data-menu="file">
     <button class="menu-title" id="menu-file" aria-haspopup="true" aria-expanded="false">File</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="new">New Model</button>
+      <button role="menuitem" data-cmd="new">New</button>
       <button role="menuitem" data-cmd="open">Open…</button>
       <button role="menuitem" data-cmd="save">Save…<kbd>Ctrl S</kbd></button>
       <hr>
       <button role="menuitem" data-cmd="text">Model as Text…</button>
+      <hr>
+      <div class="menu-label">Examples</div>
+      <div id="examples-panel"></div>
     </div>
   </div>
   <div class="menu" data-menu="edit">
@@ -299,57 +328,66 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
       <button role="menuitem" data-cmd="outputs-to-guesses">Outputs → Guesses</button>
     </div>
   </div>
-  <div class="menu" data-menu="solve">
-    <button class="menu-title" id="menu-solve" aria-haspopup="true" aria-expanded="false">Solve</button>
+  <div class="menu" data-menu="sheets">
+    <button class="menu-title" id="menu-sheets" aria-haspopup="true" aria-expanded="false">Sheets</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="solve">Solve<kbd>! or F9</kbd></button>
-      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
+      <button role="menuitem" data-cmd="focus:vars">Variable Sheet</button>
+      <button role="menuitem" data-cmd="focus:rules">Rule Sheet</button>
       <hr>
-      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess unknowns</button>
-      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I type</button>
+      <button role="menuitem" data-cmd="tab:plot">Plot Sheet</button>
+      <button role="menuitem" data-cmd="tab:lists">List Sheet</button>
+      <button role="menuitem" data-cmd="tab:units">Units Sheet</button>
     </div>
   </div>
-  <div class="menu" data-menu="view">
-    <button class="menu-title" id="menu-view" aria-haspopup="true" aria-expanded="false">View</button>
+  <div class="menu" data-menu="commands">
+    <button class="menu-title" id="menu-commands" aria-haspopup="true" aria-expanded="false">Commands</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitemcheckbox" data-cmd="size:1" id="opt-size-1">Normal Size (12 pt)</button>
-      <button role="menuitemcheckbox" data-cmd="size:2" id="opt-size-2">Double Size (24 pt)</button>
+      <button role="menuitem" data-cmd="solve">Solve<kbd>!</kbd></button>
+      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
     </div>
   </div>
-  <div class="menu" data-menu="examples">
-    <button class="menu-title" id="menu-examples" aria-haspopup="true" aria-expanded="false">Examples</button>
-    <div class="menu-panel" role="menu" id="examples-panel"></div>
+  <div class="menu" data-menu="settings">
+    <button class="menu-title" id="menu-settings" aria-haspopup="true" aria-expanded="false">Settings</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess Unknowns</button>
+      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I Type</button>
+      <hr>
+      <button role="menuitemcheckbox" data-cmd="size:1" id="opt-size-1">Normal Size</button>
+      <button role="menuitemcheckbox" data-cmd="size:2" id="opt-size-2">Double Size</button>
+    </div>
   </div>
-  <div class="menubar-spacer"></div>
-  <div class="menubar-model" id="model-title" title="Model name">Untitled</div>
 </header>
 
 <main class="desk">
-  <section class="status window" aria-live="polite">
-    <button class="btn default" id="solve-btn" title="Solve (! or F9)">Solve !</button>
-    <button class="btn" id="list-solve-btn" title="List Solve (Shift F9)">List Solve</button>
-    <p class="status-msg" id="status-msg">Type rules below, give some inputs, then press <b>!</b> to solve.</p>
-  </section>
-
   <div class="columns">
     <div class="col-main">
-      <section class="window" id="win-vars">
-        <h2 class="titlebar"><span>Variable Sheet</span></h2>
-        <div class="sheet-scroll">
+      <section class="window main-window" id="win-main">
+        <h1 class="titlebar"><span id="window-title">CH!Solver</span></h1>
+        <div class="prompt" aria-live="polite">
+          <span class="prompt-cell" id="prompt-cell">(1) Rule:</span>
+          <span class="status-msg" id="status-msg">Type rules, give some inputs, then press ! to solve.</span>
+        </div>
+
+        <div class="sheet-bar">
+          <button class="bang" type="button" data-cmd="solve" title="Solve (!)" aria-label="Solve">!</button>
+          <h2>Variable Sheet</h2>
+        </div>
+        <div class="sheet-scroll pane-scroll" id="vars-scroll">
           <table class="sheet vars" id="var-table">
             <colgroup><col class="c-st"><col class="c-in"><col class="c-name"><col class="c-out"><col class="c-unit"><col class="c-com"></colgroup>
-            <thead><tr><th title="Status: blank = input/output, G = guess, L = list">St</th><th>Input</th><th>Name</th><th>Output</th><th>Unit</th><th>Comment</th></tr></thead>
+            <thead><tr><th title="Status: blank = input/output, G = guess, L = list"><u>St</u></th><th><u>Input</u></th><th><u>Name</u></th><th><u>Output</u></th><th><u>Unit</u></th><th><u>Comment</u></th></tr></thead>
             <tbody id="var-body"></tbody>
           </table>
         </div>
-      </section>
 
-      <section class="window" id="win-rules">
-        <h2 class="titlebar"><span>Rule Sheet</span></h2>
-        <div class="sheet-scroll">
+        <div class="sheet-bar">
+          <button class="bang" type="button" data-cmd="solve" title="Solve (!)" aria-label="Solve">!</button>
+          <h2>Rule Sheet</h2>
+        </div>
+        <div class="sheet-scroll pane-scroll" id="rules-scroll">
           <table class="sheet rules" id="rule-table">
             <colgroup><col class="c-st"><col></colgroup>
-            <thead><tr><th title="* = not satisfied, ! = syntax error">St</th><th>Rule</th></tr></thead>
+            <thead><tr><th title="* = not satisfied, ! = syntax error"><u>S</u></th><th><u>Rule</u></th></tr></thead>
             <tbody id="rule-body"></tbody>
           </table>
         </div>
@@ -375,6 +413,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
           </div>
           <div class="plot-wrap"><canvas id="plot-canvas" aria-label="Plot of list values"></canvas></div>
           <p class="pane-note" id="plot-note"></p>
+          <div><button class="btn" type="button" data-cmd="list-solve">List Solve</button></div>
         </div>
 
         <div class="pane" data-pane="lists" id="pane-lists" hidden>
@@ -385,6 +424,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
             <label for="fill-to">to</label><input id="fill-to" value="10" inputmode="decimal">
             <label for="fill-n">steps</label><input id="fill-n" value="10" inputmode="numeric">
             <button class="btn" type="submit">Fill</button>
+            <button class="btn" type="button" data-cmd="list-solve">List Solve</button>
           </form>
           <div class="sheet-scroll"><table class="sheet lists" id="list-table"></table></div>
           <p class="pane-note">Set a variable's <b>St</b> to <b>L</b> to link it to a list. Lists you type are inputs; List Solve fills the rest.</p>
@@ -1826,7 +1866,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
 
   function solveNow(quiet) {
-    if (!quiet) flash('#solve-btn');
+    if (!quiet) flash('.bang');
     const { inputs, guesses, bad, U } = gatherInputs();
     if (bad.length) { setStatus(`Input for ${bad.join(', ')} is not a number.`, 'err'); return; }
     if (!model.rules.some((r) => r.ok)) { setStatus('Type a rule first, for example  c^2 = a^2 + b^2', 'err'); return; }
@@ -1847,7 +1887,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
 
   function listSolveNow() {
-    flash('#list-solve-btn');
+    flash(null);
     const lvars = model.variables.filter((v) => vdata(v).st === 'L');
     const inputLists = lvars.filter((v) => {
       const l = state.lists[v];
@@ -1888,8 +1928,8 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
 
   function flash(sel) {
-    const b = $(sel); if (!b) return;
-    b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 120);
+    if (!sel) return;
+    document.querySelectorAll(sel).forEach((b) => { b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 120); });
   }
 
   // ------------------------------------------------------------------ lists
@@ -2018,7 +2058,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
     if (!data.length) {
       ctx.fillStyle = dim; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(listNames().length ? 'Choose List Solve to fill the lists, then pick a Y series.' : 'No lists to plot yet.', W / 2, H / 2);
-      note.textContent = 'Try Examples → Projectile Range for a ready-made list solve.';
+      note.textContent = 'Try File → Projectile Range for a ready-made list solve.';
       return;
     }
     note.textContent = `${data.reduce((s, d) => s + d.pts.length, 0)} points · ${data.map((d) => d.name).join(', ')} vs ${xName}`;
@@ -2130,7 +2170,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   }
   function setupMenus() {
     const panel = $('#examples-panel');
-    EXAMPLES.forEach((ex) => panel.append(h('button', { role: 'menuitem', 'data-cmd': `example:${ex.id}` }, h('span', { text: ex.title }), h('span', { class: 'ex-desc', text: ex.desc }))));
+    EXAMPLES.filter((ex) => ex.id !== 'blank').forEach((ex) => panel.append(h('button', { role: 'menuitem', 'data-cmd': `example:${ex.id}`, title: ex.desc }, ex.title)));
     document.querySelectorAll('.menu').forEach((menu) => {
       const title = menu.querySelector('.menu-title');
       title.addEventListener('click', (ev) => {
@@ -2242,7 +2282,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
     renderUnits();
     renderLists();
     renderPlotControls();
-    $('#model-title').textContent = state.title;
+    paintTitle();
     save();
     if (opts && opts.solve) solveNow(true);
   }
@@ -2258,8 +2298,31 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
     const first = $('#rule-0'); if (first && id === 'blank') first.focus();
   }
 
+  function paintTitle() {
+    const t = state.title && state.title !== 'Untitled' ? `CH!Solver \u2014 ${state.title}` : 'CH!Solver';
+    $('#window-title').textContent = t;
+    document.title = state.title && state.title !== 'Untitled' ? `CH!Solver: ${state.title}` : 'CH!Solver';
+  }
+
+  // TK-style prompt line: "(row) Column:" for the cell being edited.
+  function paintPrompt(el) {
+    if (!el || !el.id) return;
+    let m;
+    if ((m = /^rule-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[1] + 1}) Rule:`);
+    if ((m = /^var-(st|in|unit|com)-(.+)$/.exec(el.id))) {
+      const row = shownVars.indexOf(m[2]) + 1;
+      return setPrompt(`(${row}) ${({ st: 'Status', in: 'Input', unit: 'Unit', com: 'Comment' })[m[1]]}: ${m[2]}`);
+    }
+    if ((m = /^list-(.+)-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[2] + 1}) List: ${m[1]}`);
+    if ((m = /^unit-(\w+)-(\d+)$/.exec(el.id))) return setPrompt(`(${+m[2] + 1}) Unit: ${m[1]}`);
+  }
+  function setPrompt(text) { $('#prompt-cell').textContent = text; }
+
   function command(cmd) {
     if (cmd.startsWith('example:')) return loadExample(cmd.slice(8));
+    if (cmd.startsWith('tab:')) return selectTab(cmd.slice(4));
+    if (cmd === 'focus:vars') { const el = document.querySelector('#var-body input[data-col="in"]'); if (el) el.focus(); return; }
+    if (cmd === 'focus:rules') { const el = $('#rule-0'); if (el) el.focus(); return; }
     switch (cmd) {
       case 'about': return about();
       case 'guide': return selectTab('guide');
@@ -2298,8 +2361,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 
   function init() {
     setupMenus();
-    $('#solve-btn').addEventListener('click', () => solveNow());
-    $('#list-solve-btn').addEventListener('click', () => listSolveNow());
+    document.addEventListener('focusin', (ev) => paintPrompt(ev.target));
     $('#fill-form').addEventListener('submit', onFill);
     $('#plot-x').addEventListener('change', (ev) => { state.plot.x = ev.target.value; state.plot.y = state.plot.y.filter((y) => y !== state.plot.x); save(); renderPlotControls(); });
     document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.addEventListener('click', () => selectTab(b.dataset.tab)));
@@ -2314,9 +2376,9 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
       reader.readAsText(f);
       ev.target.value = '';
     });
-    $('#model-title').addEventListener('dblclick', () => {
+    $('#window-title').addEventListener('dblclick', () => {
       const ta = h('input', { id: 'title-edit', value: state.title, 'aria-label': 'Model name', style: 'width:100%;padding:0.3rem;border:1px solid currentColor;background:transparent' });
-      dialog('Rename Model', [ta], [{ label: 'Cancel' }, { label: 'Rename', default: true, run: () => { state.title = ta.value.trim() || 'Untitled'; $('#model-title').textContent = state.title; save(); } }]);
+      dialog('Rename Model', [ta], [{ label: 'Cancel' }, { label: 'Rename', default: true, run: () => { state.title = ta.value.trim() || 'Untitled'; paintTitle(); save(); } }]);
     });
 
     document.addEventListener('keydown', (ev) => {
@@ -2332,6 +2394,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
         if (!textish) { ev.preventDefault(); solveNow(); }
       }
     });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawPlot);
     let rt = null;
     window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { applyScale(); paintOptions(); drawPlot(); }, 80); });
 
@@ -2343,7 +2406,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
       if (state.title) setStatus(`Welcome back — “${state.title}” restored. Press ! to solve.`, '');
     } else {
       loadExample('triangle');
-      setStatus('Example loaded: Right Triangle. Change an input and press ! — or try Examples in the menu bar.', 'ok');
+      setStatus('Example loaded: Right Triangle. Change an input and press ! — more examples are in the File menu.', 'ok');
     }
   }
 

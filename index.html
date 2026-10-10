@@ -12,7 +12,7 @@
 <!-- BUILD:BODY START -->
 <header class="menubar" id="menubar">
   <div class="menu" data-menu="about">
-    <button class="menu-title" id="menu-about" aria-haspopup="true" aria-expanded="false">CH!Solver</button>
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false" aria-label="About CH!Solver">CH!</button>
     <div class="menu-panel" role="menu">
       <button role="menuitem" data-cmd="about">About CH!Solver…</button>
       <button role="menuitem" data-cmd="guide">Quick Guide</button>
@@ -21,11 +21,14 @@
   <div class="menu" data-menu="file">
     <button class="menu-title" id="menu-file" aria-haspopup="true" aria-expanded="false">File</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="new">New Model</button>
+      <button role="menuitem" data-cmd="new">New</button>
       <button role="menuitem" data-cmd="open">Open…</button>
       <button role="menuitem" data-cmd="save">Save…<kbd>Ctrl S</kbd></button>
       <hr>
       <button role="menuitem" data-cmd="text">Model as Text…</button>
+      <hr>
+      <div class="menu-label">Examples</div>
+      <div id="examples-panel"></div>
     </div>
   </div>
   <div class="menu" data-menu="edit">
@@ -36,57 +39,66 @@
       <button role="menuitem" data-cmd="outputs-to-guesses">Outputs → Guesses</button>
     </div>
   </div>
-  <div class="menu" data-menu="solve">
-    <button class="menu-title" id="menu-solve" aria-haspopup="true" aria-expanded="false">Solve</button>
+  <div class="menu" data-menu="sheets">
+    <button class="menu-title" id="menu-sheets" aria-haspopup="true" aria-expanded="false">Sheets</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitem" data-cmd="solve">Solve<kbd>! or F9</kbd></button>
-      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
+      <button role="menuitem" data-cmd="focus:vars">Variable Sheet</button>
+      <button role="menuitem" data-cmd="focus:rules">Rule Sheet</button>
       <hr>
-      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess unknowns</button>
-      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I type</button>
+      <button role="menuitem" data-cmd="tab:plot">Plot Sheet</button>
+      <button role="menuitem" data-cmd="tab:lists">List Sheet</button>
+      <button role="menuitem" data-cmd="tab:units">Units Sheet</button>
     </div>
   </div>
-  <div class="menu" data-menu="view">
-    <button class="menu-title" id="menu-view" aria-haspopup="true" aria-expanded="false">View</button>
+  <div class="menu" data-menu="commands">
+    <button class="menu-title" id="menu-commands" aria-haspopup="true" aria-expanded="false">Commands</button>
     <div class="menu-panel" role="menu">
-      <button role="menuitemcheckbox" data-cmd="size:1" id="opt-size-1">Normal Size (12 pt)</button>
-      <button role="menuitemcheckbox" data-cmd="size:2" id="opt-size-2">Double Size (24 pt)</button>
+      <button role="menuitem" data-cmd="solve">Solve<kbd>!</kbd></button>
+      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
     </div>
   </div>
-  <div class="menu" data-menu="examples">
-    <button class="menu-title" id="menu-examples" aria-haspopup="true" aria-expanded="false">Examples</button>
-    <div class="menu-panel" role="menu" id="examples-panel"></div>
+  <div class="menu" data-menu="settings">
+    <button class="menu-title" id="menu-settings" aria-haspopup="true" aria-expanded="false">Settings</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess Unknowns</button>
+      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I Type</button>
+      <hr>
+      <button role="menuitemcheckbox" data-cmd="size:1" id="opt-size-1">Normal Size</button>
+      <button role="menuitemcheckbox" data-cmd="size:2" id="opt-size-2">Double Size</button>
+    </div>
   </div>
-  <div class="menubar-spacer"></div>
-  <div class="menubar-model" id="model-title" title="Model name">Untitled</div>
 </header>
 
 <main class="desk">
-  <section class="status window" aria-live="polite">
-    <button class="btn default" id="solve-btn" title="Solve (! or F9)">Solve !</button>
-    <button class="btn" id="list-solve-btn" title="List Solve (Shift F9)">List Solve</button>
-    <p class="status-msg" id="status-msg">Type rules below, give some inputs, then press <b>!</b> to solve.</p>
-  </section>
-
   <div class="columns">
     <div class="col-main">
-      <section class="window" id="win-vars">
-        <h2 class="titlebar"><span>Variable Sheet</span></h2>
-        <div class="sheet-scroll">
+      <section class="window main-window" id="win-main">
+        <h1 class="titlebar"><span id="window-title">CH!Solver</span></h1>
+        <div class="prompt" aria-live="polite">
+          <span class="prompt-cell" id="prompt-cell">(1) Rule:</span>
+          <span class="status-msg" id="status-msg">Type rules, give some inputs, then press ! to solve.</span>
+        </div>
+
+        <div class="sheet-bar">
+          <button class="bang" type="button" data-cmd="solve" title="Solve (!)" aria-label="Solve">!</button>
+          <h2>Variable Sheet</h2>
+        </div>
+        <div class="sheet-scroll pane-scroll" id="vars-scroll">
           <table class="sheet vars" id="var-table">
             <colgroup><col class="c-st"><col class="c-in"><col class="c-name"><col class="c-out"><col class="c-unit"><col class="c-com"></colgroup>
-            <thead><tr><th title="Status: blank = input/output, G = guess, L = list">St</th><th>Input</th><th>Name</th><th>Output</th><th>Unit</th><th>Comment</th></tr></thead>
+            <thead><tr><th title="Status: blank = input/output, G = guess, L = list"><u>St</u></th><th><u>Input</u></th><th><u>Name</u></th><th><u>Output</u></th><th><u>Unit</u></th><th><u>Comment</u></th></tr></thead>
             <tbody id="var-body"></tbody>
           </table>
         </div>
-      </section>
 
-      <section class="window" id="win-rules">
-        <h2 class="titlebar"><span>Rule Sheet</span></h2>
-        <div class="sheet-scroll">
+        <div class="sheet-bar">
+          <button class="bang" type="button" data-cmd="solve" title="Solve (!)" aria-label="Solve">!</button>
+          <h2>Rule Sheet</h2>
+        </div>
+        <div class="sheet-scroll pane-scroll" id="rules-scroll">
           <table class="sheet rules" id="rule-table">
             <colgroup><col class="c-st"><col></colgroup>
-            <thead><tr><th title="* = not satisfied, ! = syntax error">St</th><th>Rule</th></tr></thead>
+            <thead><tr><th title="* = not satisfied, ! = syntax error"><u>S</u></th><th><u>Rule</u></th></tr></thead>
             <tbody id="rule-body"></tbody>
           </table>
         </div>
@@ -112,6 +124,7 @@
           </div>
           <div class="plot-wrap"><canvas id="plot-canvas" aria-label="Plot of list values"></canvas></div>
           <p class="pane-note" id="plot-note"></p>
+          <div><button class="btn" type="button" data-cmd="list-solve">List Solve</button></div>
         </div>
 
         <div class="pane" data-pane="lists" id="pane-lists" hidden>
@@ -122,6 +135,7 @@
             <label for="fill-to">to</label><input id="fill-to" value="10" inputmode="decimal">
             <label for="fill-n">steps</label><input id="fill-n" value="10" inputmode="numeric">
             <button class="btn" type="submit">Fill</button>
+            <button class="btn" type="button" data-cmd="list-solve">List Solve</button>
           </form>
           <div class="sheet-scroll"><table class="sheet lists" id="list-table"></table></div>
           <p class="pane-note">Set a variable's <b>St</b> to <b>L</b> to link it to a list. Lists you type are inputs; List Solve fills the rest.</p>
