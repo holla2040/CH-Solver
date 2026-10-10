@@ -65,6 +65,13 @@ check('divider Vout', r.ok && near(r.values.Vout, 12 * 4700 / 14700), r);
 r = run(div, { Vin: 12, R1: 10000, Vout: 3.3 });
 check('divider backsolve R2', r.ok && near(r.values.R2, 3.3 * 10000 / 8.7), r);
 
+// --- railing uprights: forward gap, then backsolve n from a gap
+const rail = ['L = n * w + (n + 1) * gap', 'oc = w + gap'];
+r = run(rail, { L: 72, n: 14, w: 1.5 });
+check('railing gap', r.ok && near(r.values.gap, 3.4) && near(r.values.oc, 4.9), r);
+r = run(rail, { L: 72, w: 1.5, gap: 4 });
+check('railing backsolve n', r.ok && near(r.values.n, 68 / 5.5), r);
+
 // --- crossed ladders
 r = run(['h1 = sqrt(L1^2 - w^2)', 'h2 = sqrt(L2^2 - w^2)', '1/c = 1/h1 + 1/h2'], { L1: 30, L2: 20, c: 10 }, { w: 10 });
 check('crossed ladders', r.ok && near(r.values.w, 12.3118, 1e-4), r);

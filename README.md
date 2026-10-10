@@ -42,7 +42,7 @@ Rule Sheet marks: `*` means the rule isn't satisfied (inconsistent inputs), `!` 
 * **Lists:** set St = `L`, then type values or use Fill (from / to / steps). Lists you type are inputs; List Solve fills the others. Each row starts from the previous row's answer, which helps iterative models follow a curve.
 * **Plot:** pick an X list and one or more Y lists. The plot uses 1-bit line styles to fit the period.
 
-**Examples (File menu):** Right Triangle, Three Simultaneous Equations, Mortgage Payment (backsolve the rate), Voltage Divider (backsolve a resistor), Crossed Ladders, Projectile Range (list solve + units + plot), Pipe Friction (implicit Colebrook equation), and Ideal Gas (unit offsets).
+**Examples (File menu):** Right Triangle, Three Simultaneous Equations, Mortgage Payment (backsolve the rate), Voltage Divider (backsolve a resistor), Railing Uprights (even spacing, or how many uprights for a given gap), Crossed Ladders, Projectile Range (list solve + units + plot), Pipe Friction (implicit Colebrook equation), and Ideal Gas (unit offsets).
 
 Your model is autosaved in the browser's local storage. Use File → Save / Open for `.mks` files (JSON), or File → Model as Text… to copy or paste a model.
 

@@ -1469,6 +1469,28 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
       ],
     },
     {
+      id: 'railing',
+      title: 'Railing Uprights',
+      desc: 'Space n uprights evenly between two posts. Find the gap, or give a gap and find n.',
+      rules: [
+        '" L is the clear span between the post faces; n uprights of width w',
+        '" leave n + 1 equal gaps, one at each end and one between each pair',
+        'L = n * w + (n + 1) * gap',
+        'oc = w + gap          " center-to-center spacing',
+        'first = gap + w / 2   " post face to center of the first upright',
+        'last = L - first      " post face to center of the last upright',
+      ],
+      vars: {
+        L: { input: '72', unit: 'in', comment: 'clear span between posts' },
+        n: { input: '14', comment: 'uprights (a fraction means round up)' },
+        w: { input: '1.5', unit: 'in', comment: 'upright width' },
+        gap: { unit: 'in', comment: 'try: clear n, enter gap = 4' },
+        oc: { unit: 'in', comment: 'mark uprights this far apart' },
+        first: { unit: 'in', comment: 'first mark from the left post' },
+        last: { unit: 'in', comment: 'last mark from the left post' },
+      },
+    },
+    {
       id: 'ladders',
       title: 'Crossed Ladders',
       desc: 'A classic puzzle: two ladders cross 10 ft up. How wide is the alley?',
