@@ -17,7 +17,7 @@
   let outputs = {};          // name -> number, display units
   let ruleStatus = [];
   let shownVars = [];        // variable order currently rendered
-  let prefs = { autoGuess: true, autoSolve: false, tab: 'plot' };
+  let prefs = { autoGuess: true, autoSolve: false, tab: 'plot', size: 0 };
 
   function blankState() {
     return { title: 'Untitled', rules: [''], vars: {}, units: [], lists: {}, plot: { x: '', y: [] } };
@@ -487,9 +487,9 @@
     const cs = getComputedStyle(document.documentElement);
     const ink = cs.getPropertyValue('--ink').trim() || '#000';
     const paper = cs.getPropertyValue('--paper').trim() || '#fff';
-    const dim = cs.getPropertyValue('--dim').trim() || '#666';
-    const grid = cs.getPropertyValue('--rule').trim() || '#ccc';
-    const dataFont = cs.getPropertyValue('--font-data').trim();
+    const dim = cs.getPropertyValue('--gray').trim() || '#808080';
+    const dataFont = cs.getPropertyValue('--font').trim();
+    const u = parseFloat(cs.getPropertyValue('--u')) || 1;
     ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
 
     const note = $('#plot-note');
@@ -501,7 +501,7 @@
     const data = series.map((name) => ({ name, pts: (state.lists[name].values || []).map((s, i) => [X[i], toNum(s)]).filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b)) }))
       .filter((s) => s.pts.length);
 
-    ctx.font = `12px ${dataFont}`;
+    ctx.font = `${12 * u}px ${dataFont}`;
     if (!data.length) {
       ctx.fillStyle = dim; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(listNames().length ? 'Choose List Solve to fill the lists, then pick a Y series.' : 'No lists to plot yet.', W / 2, H / 2);
@@ -512,61 +512,61 @@
 
     const allX = data.flatMap((d) => d.pts.map((p) => p[0]));
     const allY = data.flatMap((d) => d.pts.map((p) => p[1]));
-    const tx = niceTicks(Math.min(...allX), Math.max(...allX), Math.max(3, Math.floor(W / 90)));
-    const ty = niceTicks(Math.min(0, Math.min(...allY)) === 0 && Math.min(...allY) >= 0 && Math.min(...allY) < Math.max(...allY) * 0.25 ? 0 : Math.min(...allY), Math.max(...allY), Math.max(3, Math.floor(H / 60)));
+    const tx = niceTicks(Math.min(...allX), Math.max(...allX), Math.max(3, Math.floor(W / (90 * u))));
+    const ty = niceTicks(Math.min(0, Math.min(...allY)) === 0 && Math.min(...allY) >= 0 && Math.min(...allY) < Math.max(...allY) * 0.25 ? 0 : Math.min(...allY), Math.max(...allY), Math.max(3, Math.floor(H / (50 * u))));
     const yLabels = ty.ticks.map((t) => fmtTick(t, ty.step));
-    const padL = 14 + Math.max(...yLabels.map((s) => ctx.measureText(s).width)), padR = 16, padT = 30, padB = 38;
+    const padL = 10 * u + Math.max(...yLabels.map((s) => ctx.measureText(s).width)), padR = 12 * u, padT = 26 * u, padB = 36 * u;
     const px = (x) => padL + (x - tx.lo) / (tx.hi - tx.lo) * (W - padL - padR);
     const py = (y) => H - padB - (y - ty.lo) / (ty.hi - ty.lo) * (H - padT - padB);
 
     // grid + ticks
-    ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.setLineDash([1, 3]);
+    ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.setLineDash([u, 2 * u]);
     ctx.fillStyle = ink; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
     ty.ticks.forEach((t, i) => {
-      const y = Math.round(py(t)) + 0.5;
+      const y = Math.round(py(t)) + u / 2;
       ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-      ctx.fillText(yLabels[i], padL - 6, y);
+      ctx.fillText(yLabels[i], padL - 5 * u, y);
     });
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     tx.ticks.forEach((t) => {
-      const x = Math.round(px(t)) + 0.5;
+      const x = Math.round(px(t)) + u / 2;
       ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H - padB); ctx.stroke();
-      ctx.fillText(fmtTick(t, tx.step), x, H - padB + 6);
+      ctx.fillText(fmtTick(t, tx.step), x, H - padB + 5 * u);
     });
     ctx.setLineDash([]);
-    ctx.strokeStyle = ink; ctx.strokeRect(Math.round(padL) + 0.5, padT + 0.5, Math.round(W - padL - padR), Math.round(H - padT - padB));
+    ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.strokeRect(Math.round(padL) + u / 2, padT + u / 2, Math.round(W - padL - padR), Math.round(H - padT - padB));
     const xUnit = vdata(xName).unit;
-    ctx.fillText(xName + (xUnit ? ` (${xUnit})` : ''), (padL + W - padR) / 2, H - 16);
+    ctx.fillText(xName + (xUnit ? ` (${xUnit})` : ''), (padL + W - padR) / 2, H - 15 * u);
 
     // series: 1-bit styles — solid/squares, dashed/circles, dotted/triangles
-    const styles = [[[], 'square'], [[6, 4], 'circle'], [[2, 3], 'triangle'], [[10, 3, 2, 3], 'diamond']];
+    const styles = [[[], 'square'], [[6 * u, 4 * u], 'circle'], [[2 * u, 2 * u], 'triangle'], [[10 * u, 3 * u, 2 * u, 3 * u], 'diamond']];
     data.forEach((s, k) => {
       const [dash, marker] = styles[k % styles.length];
       const pts = s.pts.slice().sort((a, b) => a[0] - b[0]);
-      ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.setLineDash(dash);
+      ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.setLineDash(dash);
       ctx.beginPath();
       pts.forEach(([x, y], i) => (i ? ctx.lineTo(px(x), py(y)) : ctx.moveTo(px(x), py(y))));
       ctx.stroke(); ctx.setLineDash([]);
-      if (pts.length <= 60) pts.forEach(([x, y]) => drawMarker(ctx, marker, px(x), py(y), ink, paper, k === 0));
+      if (pts.length <= 60) pts.forEach(([x, y]) => drawMarker(ctx, marker, px(x), py(y), ink, paper, k === 0, u));
       // legend
-      const lx = padL + 8 + k * 130, ly = 12;
-      ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); ctx.setLineDash([]);
-      drawMarker(ctx, marker, lx + 14, ly, ink, paper, k === 0);
+      const lx = padL + 8 * u + k * 130 * u, ly = 12 * u;
+      ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28 * u, ly); ctx.stroke(); ctx.setLineDash([]);
+      drawMarker(ctx, marker, lx + 14 * u, ly, ink, paper, k === 0, u);
       ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      const u = vdata(s.name).unit;
-      ctx.fillText(s.name + (u ? ` (${u})` : ''), lx + 34, ly);
+      const unit = vdata(s.name).unit;
+      ctx.fillText(s.name + (unit ? ` (${unit})` : ''), lx + 34 * u, ly);
     });
   }
 
-  function drawMarker(ctx, kind, x, y, ink, paper, filled) {
-    const r = 3.2;
+  function drawMarker(ctx, kind, x, y, ink, paper, filled, u) {
+    const r = 3 * u;
     ctx.beginPath();
     if (kind === 'square') ctx.rect(x - r, y - r, 2 * r, 2 * r);
     else if (kind === 'circle') ctx.arc(x, y, r, 0, Math.PI * 2);
     else if (kind === 'triangle') { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r + 1, y + r); ctx.lineTo(x - r - 1, y + r); ctx.closePath(); }
     else { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r + 1, y); ctx.lineTo(x, y + r + 1); ctx.lineTo(x - r - 1, y); ctx.closePath(); }
     ctx.fillStyle = filled ? ink : paper; ctx.fill();
-    ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.stroke();
+    ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.stroke();
   }
 
   function fmtTick(t, step) {
@@ -640,6 +640,22 @@
   function paintOptions() {
     $('#opt-autoguess').setAttribute('aria-checked', String(!!prefs.autoGuess));
     $('#opt-autosolve').setAttribute('aria-checked', String(!!prefs.autoSolve));
+    const u = pixelScale();
+    $('#opt-size-1').setAttribute('aria-checked', String(u === 1));
+    $('#opt-size-2').setAttribute('aria-checked', String(u === 2));
+  }
+
+  // Screen-pixel scale: 1 = Chicago 12 at 12 px, 2 = every Mac pixel doubled.
+  // Until the viewer picks one, use double size on big screens.
+  function pixelScale() {
+    if (prefs.size === 1 || prefs.size === 2) return prefs.size;
+    return window.innerWidth >= 1700 ? 2 : 1;
+  }
+  function applyScale() {
+    const u = pixelScale();
+    document.documentElement.classList.toggle('double', u === 2);
+    // Two columns only when both windows fit at this scale.
+    document.querySelector('.columns').classList.toggle('wide', window.innerWidth >= 960 * u);
   }
 
   function dialog(title, body, actions) {
@@ -647,7 +663,7 @@
     const b = $('#dialog-body'); b.textContent = ''; b.append(...[].concat(body));
     const a = $('#dialog-actions'); a.textContent = '';
     (actions || [{ label: 'OK', default: true }]).forEach((act) => {
-      a.append(h('button', { class: act.default ? 'default' : '', type: 'button', onclick: () => { if (act.run && act.run() === false) return; closeDialog(); } }, act.label));
+      a.append(h('button', { class: act.default ? 'btn default' : 'btn', type: 'button', onclick: () => { if (act.run && act.run() === false) return; closeDialog(); } }, act.label));
     });
     $('#dialog').hidden = false;
     const first = b.querySelector('textarea') || a.querySelector('.default');
@@ -758,6 +774,8 @@
       }
       case 'toggle-autoguess': prefs.autoGuess = !prefs.autoGuess; savePrefs(); paintOptions();
         return setStatus(prefs.autoGuess ? 'Auto-guess on: CH!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
+      case 'size:1': case 'size:2':
+        prefs.size = Number(cmd.slice(5)); savePrefs(); applyScale(); paintOptions(); drawPlot(); return;
       case 'toggle-autosolve': prefs.autoSolve = !prefs.autoSolve; savePrefs(); paintOptions();
         if (prefs.autoSolve) solveNow(true); return;
     }
@@ -802,13 +820,10 @@
       }
     });
     let rt = null;
-    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawPlot, 80); });
-    if (window.matchMedia) {
-      try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawPlot); } catch (_) { /* old browsers */ }
-    }
-    new MutationObserver(drawPlot).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { applyScale(); paintOptions(); drawPlot(); }, 80); });
 
     const saved = loadSaved();
+    applyScale(); paintOptions();
     selectTab(prefs.tab || 'plot');
     if (saved && saved.rules.some((r) => r.trim())) {
       loadState(saved, { solve: true });

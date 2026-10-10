@@ -95,8 +95,9 @@ Typical models solve in well under a millisecond. The 3×3 nonlinear example con
 
 ```
 index.html            app shell (Variable / Rule sheets, subsheet tabs, menus)
-css/style.css         1-bit, 1985-Mac look; light and dark (inverse video)
-fonts/                ChicagoFLF (public-domain Chicago revival by Robin Casady)
+css/style.css         1-bit, original-Macintosh look (single light theme)
+fonts/CHChicago.woff2 pixel Chicago 12 font (2.7 KB)
+tools/font/           how the pixel font is made from ChicagoFLF
 js/engine.js          parser, direct + iterative solvers, list solve, units (no DOM; runs in Node)
 js/examples.js        example models
 js/app.js             UI
@@ -115,6 +116,8 @@ tools/build-single.js inlines everything into dist/ch-solver.html
 * [TK Solver 3.0 review, Design News](https://www.designnews.com/motion-control/tk-solver-3-0)
 * [TK Solver 5.0, R&D World](https://www.rdworldonline.com/tksolver-5-0-rules-based-mathematical-solutions/)
 
-The interface font is **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's original Macintosh Chicago (see `fonts/README.ChicagoFLF.txt`). It's bundled locally, so the app works offline.
+**The look.** The interface copies the original 1984 Macintosh: 1-bit black and white, a 50% dithered desktop, striped title bars with close boxes, rounded-rectangle buttons, and the bitmap **Chicago** font. There's no dark theme, on purpose.
+
+**The font.** `fonts/CHChicago.woff2` is a true pixel font: each glyph is made of square pixels on Chicago 12's 12-pixel grid. It was made by rasterizing **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's Chicago, on its native grid. A few glyphs were then fixed by hand: the three-pixel descenders on g, j, p, q and y, plus `%`, `&`, `<`, `>`, `` ` `` and the arrows. The result is public domain too. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **View → Double Size** doubles every pixel, and large screens use double size by default.
 
 TK!Solver is a trademark of Universal Technical Systems, Inc. CH!Solver is an independent homage and is not affiliated with UTS.

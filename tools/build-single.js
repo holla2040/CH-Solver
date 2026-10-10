@@ -25,7 +25,7 @@ let body = between('<!-- BUILD:BODY START -->', '<!-- BUILD:BODY END -->');
 // Inline stylesheets, embedding url(../fonts/...) references as data: URIs.
 const inlineCss = (f) => read(f).replace(/url\("\.\.\/(fonts\/[^"]+)"\)/g, (_, font) => {
   const b64 = fs.readFileSync(path.join(root, font)).toString('base64');
-  return `url("data:font/woff;base64,${b64}")`;
+  return `url("data:font/${path.extname(font).slice(1)};base64,${b64}")`;
 });
 head = head.replace(/<link rel="stylesheet" href="(css\/[^"]+)">/g, (_, f) => `<style>\n${inlineCss(f)}\n</style>`);
 body = body.replace(/<script src="(js\/[^"]+)"><\/script>/g, (_, f) => `<script>\n${read(f).replace(/<\/script/gi, '<\\/script')}\n</script>`);
