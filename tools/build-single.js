@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Inline css/ and js/ into one self-contained HTML file.
-//   node tools/build-single.js                 -> dist/mk-solver.html (full document)
+//   node tools/build-single.js                 -> dist/MKSolver.html (full document)
 //   node tools/build-single.js --fragment out  -> head+body content only (for hosts that add their own skeleton)
 'use strict';
 const fs = require('fs');
@@ -9,7 +9,7 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const args = process.argv.slice(2);
 const fragment = args.includes('--fragment');
-const out = args.filter((a) => !a.startsWith('--'))[0] || path.join(root, 'dist', 'mk-solver.html');
+const out = args.filter((a) => !a.startsWith('--'))[0] || path.join(root, 'dist', 'MKSolver.html');
 
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const between = (a, b) => {

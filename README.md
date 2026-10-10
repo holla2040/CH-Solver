@@ -5,17 +5,20 @@ A browser-based, declarative equation solver modeled on **TK!Solver**, the
 knew, and it solved for the rest, iterating from your guesses when it had to.
 The name honors TK!Solver's inventor, **Milos Konopasek** (MK).
 
-No build step, no dependencies, no server. Open `index.html` in a browser, or
-use the single-file version in `dist/mk-solver.html`.
+No build step, no dependencies, no server. Use it online at
+https://holla2040.github.io/MKSolver/, or download the single file
+[`dist/MKSolver.html`](https://holla2040.github.io/MKSolver/dist/MKSolver.html)
+and open it from your disk.
 
 <img src="docs/screenshot.png" width="828" alt="MK!Solver main window: the Variable Sheet above the Rule Sheet, solving the Projectile Range example">
 
 ## Running it
 
-* **Use it:** open `index.html` (or `dist/mk-solver.html`) in any modern browser. It also works from `file://`.
+* **Online:** https://holla2040.github.io/MKSolver/ is deployed by `.github/workflows/pages.yml` on every push to `main`, after the engine tests pass.
+* **Offline, one file:** download [`dist/MKSolver.html`](https://holla2040.github.io/MKSolver/dist/MKSolver.html) (in the browser, File → Save Page As) and open it. The styles, fonts and code are all inside it, so it works from your disk with no other files.
+* **From a clone:** open `index.html`. It needs the `css/`, `js/` and `fonts/` folders beside it, so downloading `index.html` by itself gives an unstyled page that doesn't work. Use the single file for that.
 * **Test the engine:** `npm test` (Node 18+, no packages needed).
-* **Rebuild the single file:** `npm run build`. This inlines `css/` and `js/` into `dist/mk-solver.html`.
-* **Online:** https://holla2040.github.io/MKSolver/ is deployed by `.github/workflows/pages.yml` on every push to `main`, after the engine tests pass. The single-file version is at `/dist/mk-solver.html`.
+* **Rebuild the single file:** `npm run build`. This inlines `css/`, `js/` and `fonts/` into `dist/MKSolver.html`.
 
 ## How to use it
 
@@ -97,7 +100,7 @@ js/engine.js          parser, direct + iterative solvers, list solve, units (no 
 js/examples.js        example models
 js/app.js             UI
 test/engine.test.js   engine tests (npm test)
-tools/build-single.js inlines everything into dist/mk-solver.html
+tools/build-single.js inlines everything into dist/MKSolver.html
 docs/screenshot.png   the screenshot above
 ```
 
