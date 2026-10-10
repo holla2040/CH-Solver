@@ -23,7 +23,8 @@
   let outputs = {};          // name -> number, display units
   let ruleStatus = [];
   let shownVars = [];        // variable order currently rendered
-  let prefs = { autoGuess: true, autoSolve: false, tab: 'plot', size: 0 };
+  let prefs = { autoGuess: true, autoSolve: false, tab: 'plot', size: 0, skin: 'classic' };
+  const SKINS = ['classic', 'modern', 'pad', 'lcars', 'hp'];
 
   function blankState() {
     return { title: 'Untitled', rules: [''], vars: {}, units: [], lists: {}, plot: { x: '', y: [] } };
@@ -319,7 +320,7 @@
   }
 
   function solveNow(quiet) {
-    if (!quiet) flash('.bang');
+    if (!quiet) { flash('.bang'); if (skin() === 'lcars') chirp(); }
     const { inputs, guesses, bad, U } = gatherInputs();
     if (bad.length) { setStatus(`Input for ${bad.join(', ')} is not a number.`, 'err'); return; }
     if (!model.rules.some((r) => r.ok)) { setStatus('Type a rule first, for example  c^2 = a^2 + b^2', 'err'); return; }
@@ -378,6 +379,23 @@
     if (prefs.tab !== 'lists') selectTab('plot');
     const msg = `List Solve: ${okRows} of ${total} rows solved` + (outLists.length ? ` → ${outLists.join(', ')}` : ' (no output lists — set St to L on the variables you want to collect)');
     setStatus(okRows === total ? msg : `${msg}. First problem, ${firstErr}`, okRows === total && outLists.length ? 'ok' : 'err');
+  }
+
+  // Starship Console: a short two-tone acknowledgement, only after a click or key press.
+  let audio = null;
+  function chirp() {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audio.currentTime;
+      [[1320, 0], [1760, 0.07]].forEach(([f, dt]) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t + dt);
+        g.gain.exponentialRampToValueAtTime(0.06, t + dt + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.09);
+        o.connect(g).connect(audio.destination); o.start(t + dt); o.stop(t + dt + 0.1);
+      });
+    } catch (_) { /* no audio */ }
   }
 
   function flash(sel) {
@@ -490,12 +508,17 @@
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Colors, font and line style come from the active skin (--plot-* tokens).
     const cs = getComputedStyle(document.documentElement);
-    const ink = cs.getPropertyValue('--ink').trim() || '#000';
-    const paper = cs.getPropertyValue('--paper').trim() || '#fff';
-    const dim = cs.getPropertyValue('--gray').trim() || '#808080';
-    const dataFont = cs.getPropertyValue('--font').trim();
-    const u = parseFloat(cs.getPropertyValue('--u')) || 1;
+    const tok = (name, dflt) => cs.getPropertyValue(name).trim() || dflt;
+    const ink = tok('--plot-fg', '#000');
+    const paper = tok('--plot-bg', '#fff');
+    const gridInk = tok('--plot-grid', ink);
+    const dim = tok('--plot-muted', '#808080');
+    const dataFont = tok('--plot-font', 'sans-serif');
+    const seriesInk = [1, 2, 3, 4].map((i) => tok(`--plot-s${i}`, ink));
+    const dashed = tok('--plot-dashed', '1') !== '0';
+    const u = parseFloat(tok('--plot-scale', '')) || parseFloat(cs.getPropertyValue('--u')) || 1;
     ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
 
     const note = $('#plot-note');
@@ -526,7 +549,7 @@
     const py = (y) => H - padB - (y - ty.lo) / (ty.hi - ty.lo) * (H - padT - padB);
 
     // grid + ticks
-    ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.setLineDash([u, 2 * u]);
+    ctx.strokeStyle = gridInk; ctx.lineWidth = u; ctx.setLineDash(dashed ? [u, 2 * u] : []);
     ctx.fillStyle = ink; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
     ty.ticks.forEach((t, i) => {
       const y = Math.round(py(t)) + u / 2;
@@ -540,24 +563,26 @@
       ctx.fillText(fmtTick(t, tx.step), x, H - padB + 5 * u);
     });
     ctx.setLineDash([]);
-    ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.strokeRect(Math.round(padL) + u / 2, padT + u / 2, Math.round(W - padL - padR), Math.round(H - padT - padB));
+    ctx.strokeStyle = gridInk; ctx.lineWidth = u; ctx.strokeRect(Math.round(padL) + u / 2, padT + u / 2, Math.round(W - padL - padR), Math.round(H - padT - padB));
     const xUnit = vdata(xName).unit;
     ctx.fillText(xName + (xUnit ? ` (${xUnit})` : ''), (padL + W - padR) / 2, H - 15 * u);
 
-    // series: 1-bit styles — solid/squares, dashed/circles, dotted/triangles
+    // series: 1-bit skins tell series apart by dash and marker; colour skins by colour
     const styles = [[[], 'square'], [[6 * u, 4 * u], 'circle'], [[2 * u, 2 * u], 'triangle'], [[10 * u, 3 * u, 2 * u, 3 * u], 'diamond']];
     data.forEach((s, k) => {
-      const [dash, marker] = styles[k % styles.length];
+      const [dashStyle, marker] = styles[k % styles.length];
+      const dash = dashed ? dashStyle : [];
+      const lineInk = seriesInk[k % seriesInk.length];
       const pts = s.pts.slice().sort((a, b) => a[0] - b[0]);
-      ctx.strokeStyle = ink; ctx.lineWidth = u; ctx.setLineDash(dash);
+      ctx.strokeStyle = lineInk; ctx.lineWidth = dashed ? u : 2 * u; ctx.setLineDash(dash);
       ctx.beginPath();
       pts.forEach(([x, y], i) => (i ? ctx.lineTo(px(x), py(y)) : ctx.moveTo(px(x), py(y))));
       ctx.stroke(); ctx.setLineDash([]);
-      if (pts.length <= 60) pts.forEach(([x, y]) => drawMarker(ctx, marker, px(x), py(y), ink, paper, k === 0, u));
+      if (pts.length <= 60) pts.forEach(([x, y]) => drawMarker(ctx, marker, px(x), py(y), lineInk, paper, k === 0 || !dashed, u));
       // legend
       const lx = padL + 8 * u + k * 130 * u, ly = 12 * u;
-      ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28 * u, ly); ctx.stroke(); ctx.setLineDash([]);
-      drawMarker(ctx, marker, lx + 14 * u, ly, ink, paper, k === 0, u);
+      ctx.strokeStyle = lineInk; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28 * u, ly); ctx.stroke(); ctx.setLineDash([]);
+      drawMarker(ctx, marker, lx + 14 * u, ly, lineInk, paper, k === 0 || !dashed, u);
       ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       const unit = vdata(s.name).unit;
       ctx.fillText(s.name + (unit ? ` (${unit})` : ''), lx + 34 * u, ly);
@@ -649,19 +674,27 @@
     const u = pixelScale();
     $('#opt-size-1').setAttribute('aria-checked', String(u === 1));
     $('#opt-size-2').setAttribute('aria-checked', String(u === 2));
+    SKINS.forEach((k) => { const el = $(`#opt-skin-${k}`); if (el) el.setAttribute('aria-checked', String(skin() === k)); });
   }
 
   // Screen-pixel scale: 1 = Chicago 12 at 12 px, 2 = every Mac pixel doubled.
   // Until the viewer picks one, use double size on big screens.
   function pixelScale() {
+    if (skin() !== 'classic') return 1;
     if (prefs.size === 1 || prefs.size === 2) return prefs.size;
     return window.innerWidth >= 1700 ? 2 : 1;
   }
+  function skin() { return SKINS.includes(prefs.skin) ? prefs.skin : 'classic'; }
   function applyScale() {
+    const root = document.documentElement;
+    const s = skin();
+    root.dataset.skin = s;
+    root.classList.toggle('skinned', s !== 'classic');
     const u = pixelScale();
-    document.documentElement.classList.toggle('double', u === 2);
+    root.classList.toggle('double', u === 2);
     // Two columns only when both windows fit at this scale.
-    document.querySelector('.columns').classList.toggle('wide', window.innerWidth >= 960 * u);
+    const need = s === 'classic' ? 960 * u : 1080;
+    document.querySelector('.columns').classList.toggle('wide', window.innerWidth >= need);
   }
 
   function dialog(title, body, actions) {
@@ -803,6 +836,9 @@
       }
       case 'toggle-autoguess': prefs.autoGuess = !prefs.autoGuess; savePrefs(); paintOptions();
         return setStatus(prefs.autoGuess ? 'Auto-guess on: MK!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
+      case 'skin:classic': case 'skin:modern': case 'skin:pad': case 'skin:lcars': case 'skin:hp':
+        prefs.skin = cmd.slice(5); savePrefs(); applyScale(); paintOptions();
+        requestAnimationFrame(drawPlot); return;
       case 'size:1': case 'size:2':
         prefs.size = Number(cmd.slice(5)); savePrefs(); applyScale(); paintOptions(); drawPlot(); return;
       case 'toggle-autosolve': prefs.autoSolve = !prefs.autoSolve; savePrefs(); paintOptions();

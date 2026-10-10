@@ -46,6 +46,20 @@ Rule Sheet marks: `*` means the rule isn't satisfied (inconsistent inputs), `!` 
 
 Your model is autosaved in the browser's local storage. Use File → Save / Open for `.mks` files (JSON), or File → Model as Text… to copy or paste a model.
 
+### Skins
+
+**Settings → Skin** changes the look; the solver and layout stay the same, and your choice is remembered.
+
+| Skin | Look |
+|------|------|
+| **Classic Mac** (default) | The 1984 Macintosh: 1-bit black and white, pixel Chicago and Monaco fonts, striped title bars. |
+| **Modern** | A current engineering app: quiet neutrals, one blue accent, IBM Plex Sans and JetBrains Mono. Follows your system's light or dark setting. |
+| **Engineer's Pad** | Green engineering computation paper with a 5-per-inch grid and margin rule. Graphite lettering, answers in red pencil, unsatisfied rules circled. |
+| **Starship Console** | An LCARS-inspired console: black field, rounded elbow frame bars, condensed capitals. Solve is **ENGAGE**, unsatisfied rules flash red alert, and solving gives a short acknowledgement tone. |
+| **HP-Style Calculator** | A 1970s pocket calculator: dark case, gold legends, keycap buttons, outputs in red seven-segment LEDs, and **R/S** to solve. |
+
+Starship Console is a fan-style homage to the LCARS look and isn't affiliated with or endorsed by Paramount. HP-Style Calculator is a style homage and isn't affiliated with HP.
+
 ---
 
 ## About TK!Solver
@@ -92,9 +106,11 @@ Typical models solve in well under a millisecond. The 3×3 nonlinear example con
 
 ```
 index.html            app shell (Variable / Rule sheets, subsheet tabs, menus)
-css/style.css         1-bit, original-Macintosh look (single light theme)
+css/style.css         1-bit, original-Macintosh look (the Classic skin)
+css/skins.css         the Modern, Engineer's Pad, Starship Console and HP-Style skins
 fonts/MKChicago.woff2 pixel Chicago 12 font for the interface (2.7 KB)
 fonts/MKMonaco.woff2  pixel Monaco 9-style font for sheet contents
+fonts/skins/          fonts for the other skins (SIL Open Font License; see its README)
 tools/font/           how the pixel font is made from ChicagoFLF
 js/engine.js          parser, direct + iterative solvers, list solve, units (no DOM; runs in Node)
 js/examples.js        example models

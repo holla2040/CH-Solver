@@ -1,0 +1,445 @@
+/* MK!Solver skins.
+   Classic Mac lives in style.css and is the default. Every other skin sets
+   html.skinned[data-skin="…"]: the shared layer below replaces the 1-bit
+   chrome with token-driven panels, then each skin sets its tokens and adds
+   its own details. Fonts are bundled in fonts/skins/ (SIL OFL 1.1). */
+
+@font-face { font-family: "IBM Plex Sans"; src: url("../fonts/skins/IBMPlexSans-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("../fonts/skins/IBMPlexSans-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("../fonts/skins/JetBrainsMono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Architects Daughter"; src: url("../fonts/skins/ArchitectsDaughter-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Courier Prime"; src: url("../fonts/skins/CourierPrime-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Antonio"; src: url("../fonts/skins/Antonio-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Antonio"; src: url("../fonts/skins/Antonio-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Archivo Narrow"; src: url("../fonts/skins/ArchivoNarrow-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Archivo Narrow"; src: url("../fonts/skins/ArchivoNarrow-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "DSEG7 Classic"; src: url("../fonts/skins/DSEG7Classic-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+
+/* ================================================================ shared layer */
+html.skinned {
+  --u: 1px;
+  -webkit-font-smoothing: auto; text-rendering: auto;
+  --radius: 10px; --radius-sm: 6px;
+  --row-h: 30px; --fs-ui: 14px; --fs-data: 13.5px; --fs-small: 12.5px; --fs-head: 15px;
+  --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 6px 18px rgb(16 24 40 / 6%);
+  --bg-image: none; --bg-size: auto;
+  --plot-bg: var(--panel); --plot-fg: var(--muted); --plot-grid: var(--line); --plot-muted: var(--muted);
+  --plot-font: var(--font-data); --plot-dashed: 0; --plot-scale: 1px;
+}
+html.skinned body {
+  background-color: var(--bg); background-image: var(--bg-image); background-size: var(--bg-size);
+  image-rendering: auto; color: var(--fg);
+  font-family: var(--font-ui); font-size: var(--fs-ui); line-height: 1.45;
+}
+html.skinned :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+html.skinned ::selection { background: var(--accent-soft); color: var(--fg); }
+html.skinned .size-opt { display: none; }
+
+/* scroll bars: thin, no arrow buttons */
+html.skinned * { scrollbar-color: var(--scroll) transparent; scrollbar-width: thin; }
+html.skinned ::-webkit-scrollbar { width: 10px; height: 10px; }
+html.skinned ::-webkit-scrollbar-track { background: transparent; border: 0; }
+html.skinned ::-webkit-scrollbar-thumb { background: var(--scroll); border: 2px solid transparent; background-clip: padding-box; border-radius: 10px; }
+html.skinned ::-webkit-scrollbar-button { display: none; }
+html.skinned ::-webkit-scrollbar-corner { background: transparent; }
+
+/* menu bar */
+html.skinned .menubar {
+  height: 46px; align-items: center; gap: 2px; padding-inline: 16px;
+  background: var(--bar-bg); color: var(--bar-fg); border-bottom: 1px solid var(--line);
+}
+html.skinned .menubar::before, html.skinned .menubar::after { display: none; }
+html.skinned .menu { align-self: stretch; align-items: center; }
+html.skinned .menu-title { padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; }
+html.skinned .menu-title:hover, html.skinned .menu.open .menu-title { background: var(--accent-soft); color: var(--fg); }
+html.skinned .menu-panel {
+  top: calc(100% - 4px); min-width: 250px; padding: 6px;
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+html.skinned .menu-panel button { min-height: 32px; align-items: center; padding: 6px 12px 6px 30px; border-radius: var(--radius-sm); cursor: pointer; }
+html.skinned .menu-panel button:hover, html.skinned .menu-panel button:focus-visible { background: var(--accent); color: var(--accent-ink); }
+html.skinned .menu-panel button[aria-checked="true"]::before { left: 10px; }
+html.skinned .menu-panel kbd { color: var(--muted); font-size: var(--fs-small); }
+html.skinned .menu-panel button:hover kbd { color: inherit; }
+html.skinned .menu-panel hr { border-top: 1px solid var(--line); margin: 6px 4px; width: auto; }
+html.skinned .menu-label { padding: 6px 12px 2px 30px; color: var(--muted); font-size: var(--fs-small); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* desk and windows */
+html.skinned .desk { padding: 20px 16px 40px; gap: 16px; max-width: 1500px; }
+html.skinned .columns, html.skinned .col-main, html.skinned .col-side { gap: 16px; }
+html.skinned .columns.wide .col-side { top: calc(env(safe-area-inset-top, 0px) + 62px); }
+html.skinned .window { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+html.skinned .titlebar {
+  height: auto; padding: 12px 18px; justify-content: flex-start;
+  background: var(--title-bg); color: var(--title-fg); border-bottom: 1px solid var(--line);
+  font-family: var(--font-head); font-size: var(--fs-head); font-weight: 600;
+}
+html.skinned .titlebar span { background: none; padding: 0; line-height: 1.3; }
+
+/* prompt line */
+html.skinned .prompt { min-height: 42px; align-items: center; padding: 8px 18px; gap: 4px 16px; border-bottom: 1px solid var(--line); background: var(--prompt-bg); }
+html.skinned .prompt-cell { font-family: var(--font-data); font-size: var(--fs-small); color: var(--muted); min-width: 130px; }
+html.skinned .status-msg.ok::before { color: var(--ok); }
+html.skinned .status-msg.err { color: var(--bad); }
+html.skinned .status-msg .tag { border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; line-height: 1.7; font-size: var(--fs-small); color: var(--muted); }
+
+/* sheet header bars with the solve button */
+html.skinned .sheet-bar {
+  height: auto; justify-content: flex-start; align-items: center; gap: 12px; padding: 8px 18px;
+  background: var(--sheetbar-bg); border-bottom: 1px solid var(--line);
+}
+html.skinned .pane-scroll + .sheet-bar { border-top: 1px solid var(--line); }
+html.skinned .sheet-bar h2 { background: none; border: 0; padding: 0; line-height: 1.3; font-family: var(--font-head); font-size: var(--fs-head); font-weight: 600; }
+html.skinned .bang {
+  position: static; order: 2; margin-left: auto; width: auto; height: auto;
+  border: 0; border-radius: var(--radius-sm); padding: 5px 16px;
+  background: var(--accent); color: var(--accent-ink); font-size: 0; cursor: pointer;
+}
+html.skinned .bang::after { content: var(--solve-label, "Solve"); font-family: var(--font-ui); font-size: var(--fs-ui); font-weight: 600; }
+html.skinned .bang:hover { filter: brightness(1.08); }
+html.skinned .bang:active, html.skinned .bang.flash { filter: brightness(0.88); background: var(--accent); color: var(--accent-ink); }
+
+/* sheets */
+html.skinned #vars-scroll { height: calc(var(--row-h) * 11 + 40px); }
+html.skinned #rules-scroll { height: calc(var(--row-h) * 8 + 40px); }
+html.skinned .pane-scroll { scrollbar-gutter: auto; overflow-y: auto; }
+html.skinned .pane-scroll thead th { background: var(--panel); }
+html.skinned .sheet th {
+  font-family: var(--font-ui); font-size: var(--fs-small); color: var(--muted); font-weight: 400;
+  padding: 9px 10px 7px; border-bottom: 1px solid var(--line);
+  text-transform: var(--th-case, none); letter-spacing: var(--th-track, 0);
+}
+html.skinned .sheet th u { text-decoration: none; }
+html.skinned .sheet td { height: var(--row-h); font-family: var(--font-data); font-size: var(--fs-data); line-height: 1.3; border-bottom: 1px solid var(--line-soft); }
+html.skinned .sheet input { height: var(--row-h); padding: 0 10px; }
+html.skinned .sheet input:focus { background: var(--focus-bg); color: var(--fg); caret-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+html.skinned .sheet input::placeholder { color: var(--muted); opacity: 0.7; }
+html.skinned .sheet .cell { padding: 0 10px; }
+html.skinned .vars { min-width: 680px; }
+html.skinned .vars col.c-st, html.skinned .rules col.c-st { width: 44px; }
+html.skinned .vars td.name { color: var(--name, var(--fg)); }
+html.skinned .vars td.in { background: var(--in-bg); }
+html.skinned .vars td.out { color: var(--out); background: var(--out-bg); }
+html.skinned .vars tr.is-guess td.in input { color: var(--guess); font-style: normal; }
+html.skinned .vars td.out.fresh { animation: skin-fresh 0.7s ease-out 1; }
+@keyframes skin-fresh { from { background: var(--accent-soft); } }
+html.skinned .rules td.st.unsatisfied { color: var(--bad); }
+html.skinned .rules td.st.error { background: var(--bad); color: var(--bad-ink, #fff); }
+html.skinned .rules td.st.unsolved { color: var(--muted); }
+html.skinned .rules tr.error input { text-decoration: underline wavy var(--bad); text-underline-offset: 4px; }
+html.skinned .lists td.idx { color: var(--muted); width: 40px; }
+html.skinned .lists td.computed input { color: var(--out); }
+
+/* subsheets */
+html.skinned .tabs { padding: 10px 14px 0; gap: 4px; border-bottom: 1px solid var(--line); }
+html.skinned .tabs button {
+  min-height: 0; padding: 6px 14px; margin-bottom: -1px; cursor: pointer;
+  background: none; color: var(--muted); border: 1px solid transparent; border-bottom: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+html.skinned .tabs button[aria-selected="true"] { background: var(--panel); color: var(--fg); border-color: var(--line); }
+html.skinned .pane { padding: 14px 18px; gap: 12px; }
+html.skinned .pane-note { color: var(--muted); font-size: var(--fs-small); max-width: 62ch; }
+html.skinned .btn {
+  min-height: 0; padding: 6px 14px; cursor: pointer;
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+html.skinned .btn:hover { border-color: var(--accent); }
+html.skinned .btn.default { background: var(--accent); color: var(--accent-ink); border-color: transparent; box-shadow: none; margin: 0; font-weight: 600; }
+html.skinned .btn:active, html.skinned .btn.flash { filter: brightness(0.9); background: var(--accent-soft); color: var(--fg); }
+html.skinned .plot-controls select, html.skinned .fill select {
+  appearance: auto; -webkit-appearance: auto; background-image: none; box-shadow: none;
+  min-height: 32px; padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background-color: var(--panel); color: var(--fg);
+}
+html.skinned .fill input { font-family: var(--font-data); font-size: var(--fs-small); width: 80px; min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
+html.skinned .plot-y label { cursor: pointer; }
+html.skinned .plot-y input[type="checkbox"] { appearance: auto; -webkit-appearance: auto; width: 16px; height: 16px; border: 0; background: none; accent-color: var(--accent); }
+html.skinned .plot-y input[type="checkbox"]:checked { background-image: none; }
+html.skinned .plot-wrap { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+html.skinned #plot-canvas { image-rendering: auto; }
+html.skinned .guide { max-width: 62ch; }
+html.skinned .guide h3 { font-family: var(--font-head); font-weight: 600; text-decoration: none; margin-top: 8px; }
+html.skinned .guide code, html.skinned .keys dt { font-family: var(--font-data); }
+
+/* dialogs */
+html.skinned .dialog-scrim { background: rgb(0 0 0 / 35%); }
+html.skinned .dialog { border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; width: min(540px, 100%); background: var(--panel); color: var(--fg); }
+html.skinned .dialog h2 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 600; }
+html.skinned .dialog textarea, html.skinned .dialog input { font-family: var(--font-data); font-size: var(--fs-small); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--fg); padding: 8px; }
+html.skinned .dialog textarea { min-height: 260px; }
+html.skinned .about-logo { font-family: var(--font-head); font-size: 2rem; line-height: 1.2; font-weight: 600; }
+
+@media (max-width: 560px) {
+  html.skinned .menubar { padding-inline: 8px; }
+  html.skinned .menu-title { padding: 6px 8px; }
+  html.skinned .menu-panel { top: calc(env(safe-area-inset-top, 0px) + 46px); }
+}
+
+/* ================================================================ Modern */
+/* A current engineering app: quiet neutrals, one blue accent, light or dark. */
+html.skinned[data-skin="modern"] {
+  --font-ui: "IBM Plex Sans", system-ui, sans-serif;
+  --font-head: "IBM Plex Sans", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --bg: #f3f4f6; --panel: #ffffff; --fg: #1a1d23; --muted: #5f6774;
+  --line: #dde1e7; --line-soft: #eef0f3; --scroll: #c3c9d2;
+  --accent: #2f5bd3; --accent-ink: #ffffff; --accent-soft: #e4ebfc;
+  --bar-bg: #ffffff; --bar-fg: #1a1d23; --title-bg: #ffffff; --title-fg: #1a1d23;
+  --prompt-bg: #fafbfc; --sheetbar-bg: #ffffff; --focus-bg: #ffffff;
+  --in-bg: transparent; --out: #1f4fbf; --out-bg: #f6f8fe; --guess: #b25e00;
+  --bad: #c62a2a; --ok: #23843f;
+  --plot-s1: #2f5bd3; --plot-s2: #d9540f; --plot-s3: #23843f; --plot-s4: #9b3dbf;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  html.skinned[data-skin="modern"] {
+    --bg: #0f1216; --panel: #171b21; --fg: #e7eaef; --muted: #9aa4b2;
+    --line: #2a313b; --line-soft: #20262e; --scroll: #3a4350;
+    --accent: #7aa2ff; --accent-ink: #0b1020; --accent-soft: #233150;
+    --bar-bg: #13171c; --bar-fg: #e7eaef; --title-bg: #171b21; --title-fg: #e7eaef;
+    --prompt-bg: #14181d; --sheetbar-bg: #171b21; --focus-bg: #10141a;
+    --out: #9dbbff; --out-bg: #18202d; --guess: #f0b45a;
+    --bad: #ff7b72; --ok: #6fd38a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 25%);
+    --plot-s1: #7aa2ff; --plot-s2: #ff9a5c; --plot-s3: #6fd38a; --plot-s4: #d29bff;
+    color-scheme: dark;
+  }
+}
+html.skinned[data-skin="modern"] .brand { font-weight: 600; }
+
+/* ================================================================ Engineer's Pad */
+/* Green engineering computation paper: 5-per-inch grid, graphite lettering,
+   answers in red pencil, a margin rule down the left. */
+html.skinned[data-skin="pad"] {
+  --grid: 24px;
+  --font-ui: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-head: "Architects Daughter", "Comic Sans MS", cursive;
+  --font-data: "Courier Prime", "Courier New", monospace;
+  --paper-green: #eaf1df; --grid-ink: #c5d7b2; --grid-heavy: #a9c293; --margin-ink: #8fae76;
+  --bg: #dfe8d2; --panel: var(--paper-green); --fg: #33372f; --muted: #66705b;
+  --line: #a9c293; --line-soft: transparent; --scroll: #a9c293;
+  --accent: #2e5d4b; --accent-ink: #f4f8ee; --accent-soft: #d3e2c3;
+  --bar-bg: #eaf1df; --bar-fg: #33372f; --title-bg: transparent; --title-fg: #33372f;
+  --prompt-bg: transparent; --sheetbar-bg: transparent; --focus-bg: rgb(255 255 255 / 55%);
+  --in-bg: transparent; --out: #b5302a; --out-bg: transparent; --guess: #2b5797;
+  --bad: #b5302a; --ok: #2e5d4b;
+  --row-h: var(--grid); --fs-ui: 16px; --fs-data: 15px; --fs-small: 14px; --fs-head: 19px;
+  --radius: 2px; --radius-sm: 4px; --shadow: 0 1px 0 rgb(60 80 40 / 12%), 0 10px 24px rgb(60 80 40 / 10%);
+  --solve-label: "Solve";
+  --plot-bg: #eef4e5; --plot-fg: #4a5240; --plot-grid: #b9cfa3; --plot-muted: #66705b; --plot-font: var(--font-ui);
+  --plot-s1: #3a3d36; --plot-s2: #b5302a; --plot-s3: #2b5797; --plot-s4: #2e6b3a;
+  color-scheme: light;
+}
+/* the page: fine 5-per-inch grid with a heavier line every inch */
+html.skinned[data-skin="pad"] .pane-scroll,
+html.skinned[data-skin="pad"] .window {
+  background-color: var(--paper-green);
+  background-image:
+    linear-gradient(to right, transparent 43px, var(--margin-ink) 43px, var(--margin-ink) 45px, transparent 45px),
+    linear-gradient(to bottom, var(--grid-heavy) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-heavy) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-ink) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-ink) 1px, transparent 1px);
+  background-size: 100% 100%, calc(var(--grid) * 5) calc(var(--grid) * 5), calc(var(--grid) * 5) calc(var(--grid) * 5), var(--grid) var(--grid), var(--grid) var(--grid);
+  background-attachment: local;
+}
+html.skinned[data-skin="pad"] .window { background-image: none; }
+html.skinned[data-skin="pad"] .pane-scroll thead th { background: var(--paper-green); height: var(--grid); padding: 0 10px; line-height: var(--grid); border-bottom: 2px solid var(--margin-ink); }
+html.skinned[data-skin="pad"] .sheet td { border-bottom: 0; }
+html.skinned[data-skin="pad"] .sheet th { font-family: var(--font-head); font-size: 15px; color: var(--fg); }
+html.skinned[data-skin="pad"] .titlebar { font-size: 22px; font-weight: 400; border-bottom: 2px solid var(--margin-ink); padding: 10px 18px 6px; }
+html.skinned[data-skin="pad"] .sheet-bar h2, html.skinned[data-skin="pad"] .guide h3, html.skinned[data-skin="pad"] .dialog h2 { font-weight: 400; }
+html.skinned[data-skin="pad"] .sheet-bar { border-bottom: 0; padding-bottom: 2px; }
+html.skinned[data-skin="pad"] .pane-scroll + .sheet-bar { border-top: 2px solid var(--margin-ink); }
+html.skinned[data-skin="pad"] .sheet-bar h2 { font-size: 19px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+html.skinned[data-skin="pad"] .bang { border-radius: 40% 55% 45% 50% / 55% 45% 55% 45%; background: transparent; color: var(--bad); box-shadow: inset 0 0 0 2px var(--bad); padding: 3px 16px; transform: rotate(-2deg); }
+html.skinned[data-skin="pad"] .bang::after { font-family: var(--font-head); font-weight: 400; font-size: 17px; }
+html.skinned[data-skin="pad"] .bang:active, html.skinned[data-skin="pad"] .bang.flash { background: var(--bad); color: var(--accent-ink); }
+html.skinned[data-skin="pad"] .vars td.out { font-weight: 400; text-shadow: 0 0 0.4px var(--out); }
+/* unsatisfied rules get circled in red pencil */
+html.skinned[data-skin="pad"] .rules td.st.unsatisfied { border-radius: 50%; box-shadow: inset 0 0 0 2px var(--bad); }
+html.skinned[data-skin="pad"] .rules td.st.error { background: none; color: var(--bad); border-radius: 50%; box-shadow: inset 0 0 0 2px var(--bad); }
+html.skinned[data-skin="pad"] .btn.default, html.skinned[data-skin="pad"] .btn { font-family: var(--font-head); font-weight: 400; }
+html.skinned[data-skin="pad"] .menubar { border-bottom: 2px solid var(--margin-ink); }
+html.skinned[data-skin="pad"] .tabs button { font-family: var(--font-head); }
+html.skinned[data-skin="pad"] .plot-wrap { border: 1px solid var(--margin-ink); }
+
+/* ================================================================ Starship Console */
+/* LCARS-inspired: black field, rounded "elbow" frame bars, condensed capitals. */
+html.skinned[data-skin="lcars"] {
+  --c-orange: #ff9c00; --c-peach: #ffcc99; --c-lilac: #cc99cc; --c-blue: #9999ff;
+  --c-red: #dd4444; --c-tan: #ffaa90; --c-gold: #ffcc66;
+  --font-ui: "Antonio", "Arial Narrow", sans-serif;
+  --font-head: "Antonio", "Arial Narrow", sans-serif;
+  --font-data: "Antonio", "Arial Narrow", sans-serif;
+  --bg: #000000; --panel: #000000; --fg: var(--c-peach); --muted: var(--c-lilac);
+  --line: #222222; --line-soft: transparent; --scroll: var(--c-orange);
+  --accent: var(--c-orange); --accent-ink: #000000; --accent-soft: #3a2400;
+  --bar-bg: #000000; --bar-fg: #000000; --title-bg: var(--c-lilac); --title-fg: #000000;
+  --prompt-bg: #000000; --sheetbar-bg: #000000; --focus-bg: #1d1d1d;
+  --in-bg: transparent; --out: var(--c-orange); --out-bg: transparent; --guess: var(--c-blue); --name: var(--c-blue);
+  --bad: var(--c-red); --bad-ink: #000000; --ok: var(--c-gold);
+  --row-h: 28px; --fs-ui: 16px; --fs-data: 17px; --fs-small: 14px; --fs-head: 18px;
+  --th-case: uppercase; --th-track: 0.08em;
+  --radius: 0; --radius-sm: 999px; --shadow: none;
+  --solve-label: "ENGAGE";
+  --plot-bg: #000000; --plot-fg: var(--c-lilac); --plot-grid: #2b2b2b; --plot-muted: var(--c-lilac); --plot-font: var(--font-ui);
+  --plot-s1: var(--c-orange); --plot-s2: var(--c-blue); --plot-s3: var(--c-peach); --plot-s4: var(--c-red);
+  color-scheme: dark;
+}
+/* capitals for the interface only: variable names and rules are case-sensitive, so sheet contents keep their case */
+html.skinned[data-skin="lcars"] .status-msg, html.skinned[data-skin="lcars"] .pane-note, html.skinned[data-skin="lcars"] .plot-controls label, html.skinned[data-skin="lcars"] .plot-y-label, html.skinned[data-skin="lcars"] .fill label { text-transform: uppercase; letter-spacing: 0.04em; }
+/* menu bar: a row of pill buttons on a black field */
+html.skinned[data-skin="lcars"] .menubar { height: 52px; gap: 6px; border-bottom: 0; padding-inline: 16px; }
+html.skinned[data-skin="lcars"] .menu-title { height: 34px; padding: 0 22px; border-radius: 999px; color: #000; font-size: 17px; text-transform: uppercase; letter-spacing: 0.06em; background: var(--c-peach); }
+html.skinned[data-skin="lcars"] .menu:nth-child(1) .menu-title { background: var(--c-orange); border-radius: 999px 6px 6px 999px; padding-left: 28px; }
+html.skinned[data-skin="lcars"] .menu:nth-child(2) .menu-title { background: var(--c-lilac); }
+html.skinned[data-skin="lcars"] .menu:nth-child(3) .menu-title { background: var(--c-peach); }
+html.skinned[data-skin="lcars"] .menu:nth-child(4) .menu-title { background: var(--c-blue); }
+html.skinned[data-skin="lcars"] .menu:nth-child(5) .menu-title { background: var(--c-tan); }
+html.skinned[data-skin="lcars"] .menu:nth-child(6) .menu-title { background: var(--c-gold); }
+html.skinned[data-skin="lcars"] .menu-title:hover, html.skinned[data-skin="lcars"] .menu.open .menu-title { background: #ffffff; color: #000; }
+html.skinned[data-skin="lcars"] .menubar::after {
+  display: block; content: ""; position: static; flex: 1; height: 14px; margin-left: 8px; transform: none;
+  background: var(--c-orange); border-radius: 7px 999px 999px 7px;
+}
+html.skinned[data-skin="lcars"] .menu-panel { background: #000; border: 0; border-left: 14px solid var(--c-lilac); border-radius: 0 18px 18px 0; padding: 8px; box-shadow: 0 0 0 2px #000, 0 0 0 4px var(--c-lilac); top: 100%; }
+html.skinned[data-skin="lcars"] .menu-panel button { color: var(--c-peach); text-transform: uppercase; letter-spacing: 0.05em; border-radius: 999px; }
+html.skinned[data-skin="lcars"] .menu-panel button:hover { background: var(--c-orange); color: #000; }
+html.skinned[data-skin="lcars"] .menu-label { color: var(--c-blue); }
+/* windows: an elbow frame — top bar, left bar, rounded outer corner */
+html.skinned[data-skin="lcars"] .window { position: relative; border: 0; border-left: 30px solid var(--frame, var(--c-lilac)); border-radius: 36px 0 0 36px; padding-bottom: 16px; overflow: visible; }
+html.skinned[data-skin="lcars"] .col-side .window { --frame: var(--c-orange); }
+html.skinned[data-skin="lcars"] .window::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 12px;
+  background: var(--frame, var(--c-lilac)); border-radius: 0 6px 6px 0;
+}
+html.skinned[data-skin="lcars"] .titlebar {
+  position: relative; justify-content: flex-end; height: 34px; padding: 0 22px; margin-left: -1px;
+  background: var(--frame, var(--c-lilac)); color: #000; border: 0;
+  font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+}
+html.skinned[data-skin="lcars"] .titlebar::before {
+  content: ""; position: absolute; left: 0; top: 100%; width: 26px; height: 26px;
+  background: radial-gradient(circle at 100% 100%, transparent 25px, var(--frame, var(--c-lilac)) 26px);
+}
+html.skinned[data-skin="lcars"] .titlebar::after { content: "04-2271"; position: absolute; left: 14px; font-size: 13px; font-weight: 400; letter-spacing: 0.1em; }
+html.skinned[data-skin="lcars"] .prompt { border-bottom: 0; padding: 12px 18px 8px 34px; }
+html.skinned[data-skin="lcars"] .prompt-cell { color: var(--c-blue); }
+html.skinned[data-skin="lcars"] .status-msg.ok { color: var(--c-gold); }
+html.skinned[data-skin="lcars"] .status-msg.ok::before { content: "● "; color: var(--c-gold); }
+html.skinned[data-skin="lcars"] .status-msg.err::before { content: "▲ "; }
+html.skinned[data-skin="lcars"] .status-msg .tag { border: 0; background: var(--c-blue); color: #000; }
+/* sheet bars: label pill, a long filler bar, then ENGAGE */
+html.skinned[data-skin="lcars"] .sheet-bar { border: 0; padding: 8px 18px 6px 16px; gap: 8px; }
+html.skinned[data-skin="lcars"] .pane-scroll + .sheet-bar { border-top: 0; }
+html.skinned[data-skin="lcars"] .sheet-bar h2 { background: var(--c-peach); color: #000; border-radius: 999px 4px 4px 999px; padding: 2px 18px; font-size: 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+html.skinned[data-skin="lcars"] .sheet-bar::after { content: ""; order: 1; flex: 1; height: 12px; background: var(--c-blue); border-radius: 3px; }
+html.skinned[data-skin="lcars"] .bang { order: 3; margin-left: 0; background: var(--c-red); color: #000; border-radius: 4px 999px 999px 4px; padding: 3px 22px; }
+html.skinned[data-skin="lcars"] .bang::after { font-size: 16px; font-weight: 700; letter-spacing: 0.1em; }
+html.skinned[data-skin="lcars"] .bang:active, html.skinned[data-skin="lcars"] .bang.flash { background: #ffffff; filter: none; }
+html.skinned[data-skin="lcars"] .sheet th { color: var(--c-lilac); border-bottom: 2px solid #222; font-size: 14px; }
+html.skinned[data-skin="lcars"] .sheet td { letter-spacing: 0.04em; }
+html.skinned[data-skin="lcars"] .sheet input:focus { box-shadow: inset 4px 0 0 var(--c-orange); background: #1a1306; }
+/* red alert: unsatisfied rules pulse */
+html.skinned[data-skin="lcars"] .rules td.st.unsatisfied { background: var(--c-red); color: #000; animation: red-alert 0.9s steps(2, jump-none) infinite; }
+@keyframes red-alert { 50% { background: #000; color: var(--c-red); } }
+@media (prefers-reduced-motion: reduce) { html.skinned[data-skin="lcars"] .rules td.st.unsatisfied { animation: none; } }
+html.skinned[data-skin="lcars"] .tabs { border-bottom: 0; padding: 12px 14px 0; gap: 6px; }
+html.skinned[data-skin="lcars"] .tabs button { border: 0; border-radius: 999px; padding: 4px 18px; background: #2a2a2a; color: var(--c-peach); text-transform: uppercase; letter-spacing: 0.06em; margin: 0; }
+html.skinned[data-skin="lcars"] .tabs button[aria-selected="true"] { background: var(--c-orange); color: #000; }
+html.skinned[data-skin="lcars"] .btn { border: 0; border-radius: 999px; background: var(--c-blue); color: #000; text-transform: uppercase; letter-spacing: 0.06em; padding: 5px 20px; }
+html.skinned[data-skin="lcars"] .btn.default { background: var(--c-orange); }
+html.skinned[data-skin="lcars"] .plot-wrap { border: 2px solid #222; border-radius: 0 18px 18px 0; }
+html.skinned[data-skin="lcars"] .dialog { border: 0; border-left: 18px solid var(--c-orange); border-radius: 0 24px 24px 0; box-shadow: 0 0 0 2px var(--c-orange); }
+html.skinned[data-skin="lcars"] .dialog-actions .btn { color: #000; }
+
+/* ================================================================ HP Calculator */
+/* A 1970s HP pocket calculator: dark case, gold legends, keycaps, red LEDs. */
+html.skinned[data-skin="hp"] {
+  --font-ui: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-head: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-data: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-led: "DSEG7 Classic", "Courier New", monospace;
+  --case: #26221f; --case-2: #322d29; --gold: #d8b25a; --key: #1b1918; --key-blue: #2f63a8; --key-gold: #d98a2b;
+  --led: #ff3b2f; --led-glow: rgb(255 50 30 / 55%); --led-bg: #170404;
+  --bg: #1a1715; --panel: var(--case-2); --fg: #eee6d8; --muted: #b9a98a;
+  --line: #4a423b; --line-soft: #3a342f; --scroll: #5a5048;
+  --accent: var(--key-gold); --accent-ink: #1b1110; --accent-soft: #4a3a24;
+  --bar-bg: var(--case); --bar-fg: #eee6d8; --title-bg: var(--case); --title-fg: var(--gold);
+  --prompt-bg: var(--led-bg); --sheetbar-bg: var(--case); --focus-bg: #241f1b;
+  --in-bg: transparent; --out: var(--led); --out-bg: var(--led-bg); --guess: #8fb8ff; --name: var(--gold);
+  --bad: #ff6a4d; --ok: #ffd36b;
+  --row-h: 30px; --fs-ui: 15px; --fs-data: 16px; --fs-small: 13.5px; --fs-head: 16px;
+  --th-case: uppercase; --th-track: 0.1em;
+  --radius: 14px; --radius-sm: 6px; --shadow: 0 2px 0 #0e0c0b, 0 14px 30px rgb(0 0 0 / 45%);
+  --solve-label: "R/S";
+  --plot-bg: var(--led-bg); --plot-fg: var(--gold); --plot-grid: #3a1f18; --plot-muted: #b9a98a; --plot-font: var(--font-ui);
+  --plot-s1: #ff3b2f; --plot-s2: #ffb000; --plot-s3: #3cff8a; --plot-s4: #6fb2ff;
+  color-scheme: dark;
+}
+html.skinned[data-skin="hp"] body { background: radial-gradient(120% 80% at 50% 0%, #2a2522, #121010); background-attachment: fixed; }
+/* keycaps */
+html.skinned[data-skin="hp"] .menu-title,
+html.skinned[data-skin="hp"] .btn,
+html.skinned[data-skin="hp"] .tabs button,
+html.skinned[data-skin="hp"] .bang {
+  border: 0; border-radius: 6px 6px 9px 9px; color: #f3ede2;
+  background: linear-gradient(#3b3633, var(--key) 55%);
+  box-shadow: 0 3px 0 #090807, inset 0 1px 0 rgb(255 255 255 / 12%);
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+}
+html.skinned[data-skin="hp"] .menubar { height: 54px; gap: 8px; border-bottom: 1px solid #0d0b0a; box-shadow: inset 0 -2px 0 #3a332e; }
+html.skinned[data-skin="hp"] .menu-title { padding: 6px 14px; font-size: 13px; }
+html.skinned[data-skin="hp"] .menu-title:hover, html.skinned[data-skin="hp"] .menu.open .menu-title { background: linear-gradient(#4a4440, #262321 55%); color: var(--gold); }
+html.skinned[data-skin="hp"] .menu:first-child .menu-title { background: linear-gradient(#e7a046, var(--key-gold) 55%); color: #1b1110; }
+html.skinned[data-skin="hp"] .menu-title:active, html.skinned[data-skin="hp"] .btn:active, html.skinned[data-skin="hp"] .bang:active, html.skinned[data-skin="hp"] .bang.flash { transform: translateY(2px); box-shadow: 0 1px 0 #090807; filter: none; }
+html.skinned[data-skin="hp"] .menu-panel { background: var(--case); border-color: #0d0b0a; }
+html.skinned[data-skin="hp"] .menu-panel button:hover { color: #1b1110; }
+/* case: brushed metal title strip with a gold legend */
+html.skinned[data-skin="hp"] .window { border: 1px solid #0d0b0a; background: var(--case-2); }
+html.skinned[data-skin="hp"] .titlebar {
+  background: linear-gradient(#5b544e, #3b3531 60%, #2c2724); color: var(--gold);
+  border-bottom: 2px solid #0d0b0a; text-transform: uppercase; letter-spacing: 0.14em; font-size: 14px;
+}
+/* the prompt line is the LED display */
+html.skinned[data-skin="hp"] .prompt { background: var(--led-bg); border-bottom: 2px solid #0d0b0a; box-shadow: inset 0 2px 8px #000; }
+html.skinned[data-skin="hp"] .prompt-cell { color: #8a3b2f; }
+html.skinned[data-skin="hp"] .status-msg { color: var(--led); text-shadow: 0 0 6px var(--led-glow); letter-spacing: 0.04em; }
+html.skinned[data-skin="hp"] .status-msg.ok::before { color: var(--led); }
+html.skinned[data-skin="hp"] .status-msg .tag { color: #c46a5a; border-color: #5a2219; }
+html.skinned[data-skin="hp"] .sheet-bar { border-bottom: 1px solid #0d0b0a; }
+html.skinned[data-skin="hp"] .pane-scroll + .sheet-bar { border-top: 1px solid #0d0b0a; }
+html.skinned[data-skin="hp"] .sheet-bar h2 { color: var(--gold); text-transform: uppercase; letter-spacing: 0.14em; font-size: 14px; }
+html.skinned[data-skin="hp"] .bang { background: linear-gradient(#e7a046, var(--key-gold) 55%); color: #1b1110; padding: 5px 22px; }
+html.skinned[data-skin="hp"] .bang::after { font-weight: 600; letter-spacing: 0.08em; }
+html.skinned[data-skin="hp"] .sheet th { color: var(--gold); }
+/* outputs glow like the LED display */
+html.skinned[data-skin="hp"] .vars td.out { font-family: var(--font-led); font-size: 14px; letter-spacing: 0.06em; text-shadow: 0 0 6px var(--led-glow); border-bottom-color: #2a0b07; }
+html.skinned[data-skin="hp"] .vars td.out.fresh { animation: none; }
+html.skinned[data-skin="hp"] .lists td.computed input { color: var(--led); text-shadow: 0 0 5px var(--led-glow); }
+html.skinned[data-skin="hp"] .tabs { border-bottom-color: #0d0b0a; gap: 8px; padding-bottom: 8px; }
+html.skinned[data-skin="hp"] .tabs button { border-radius: 6px 6px 9px 9px; margin: 0; font-size: 13px; padding: 5px 14px; }
+html.skinned[data-skin="hp"] .tabs button[aria-selected="true"] { background: linear-gradient(#4f86cf, var(--key-blue) 55%); color: #fff; }
+html.skinned[data-skin="hp"] .btn.default { background: linear-gradient(#4f86cf, var(--key-blue) 55%); color: #fff; }
+html.skinned[data-skin="hp"] .plot-wrap { border: 2px solid #0d0b0a; box-shadow: inset 0 2px 10px #000; }
+html.skinned[data-skin="hp"] .dialog { background: var(--case); border-color: #0d0b0a; }
+
+/* ================================================================ narrow screens */
+@media (max-width: 560px) {
+  html.skinned[data-skin="lcars"] .menubar { gap: 4px; padding-inline: 8px; }
+  html.skinned[data-skin="lcars"] .menu-panel { top: calc(env(safe-area-inset-top, 0px) + 52px); }
+  html.skinned[data-skin="hp"] .menu-panel { top: calc(env(safe-area-inset-top, 0px) + 54px); }
+  html.skinned[data-skin="lcars"] .menubar::after { display: none; }
+  html.skinned[data-skin="lcars"] .menu-title { height: 30px; padding: 0 9px; font-size: 14px; letter-spacing: 0.02em; }
+  html.skinned[data-skin="lcars"] .menu:nth-child(1) .menu-title { padding-left: 13px; }
+  html.skinned[data-skin="lcars"] .window { border-left-width: 14px; border-radius: 22px 0 0 22px; }
+  html.skinned[data-skin="lcars"] .titlebar { font-size: 17px; padding: 0 12px; }
+  html.skinned[data-skin="lcars"] .titlebar::after { display: none; }
+  html.skinned[data-skin="lcars"] .titlebar::before { width: 16px; height: 16px; background: radial-gradient(circle at 100% 100%, transparent 15px, var(--frame, var(--c-lilac)) 16px); }
+  html.skinned[data-skin="lcars"] .sheet-bar::after { min-width: 12px; }
+  html.skinned[data-skin="hp"] .menubar { gap: 5px; }
+  html.skinned[data-skin="hp"] .menu-title { padding: 6px 7px; font-size: 11.5px; letter-spacing: 0.03em; }
+}

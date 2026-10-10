@@ -6,6 +6,7 @@
 <!-- BUILD:HEAD START -->
 <title>MK!Solver</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/skins.css">
 <!-- BUILD:HEAD END -->
 </head>
 <body>
@@ -62,9 +63,16 @@
     <div class="menu-panel" role="menu">
       <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess Unknowns</button>
       <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I Type</button>
+      <hr class="size-opt">
+      <button role="menuitemcheckbox" class="size-opt" data-cmd="size:1" id="opt-size-1">Normal Size</button>
+      <button role="menuitemcheckbox" class="size-opt" data-cmd="size:2" id="opt-size-2">Double Size</button>
       <hr>
-      <button role="menuitemcheckbox" data-cmd="size:1" id="opt-size-1">Normal Size</button>
-      <button role="menuitemcheckbox" data-cmd="size:2" id="opt-size-2">Double Size</button>
+      <div class="menu-label">Skin</div>
+      <button role="menuitemradio" data-cmd="skin:classic" id="opt-skin-classic">Classic Mac</button>
+      <button role="menuitemradio" data-cmd="skin:modern" id="opt-skin-modern">Modern</button>
+      <button role="menuitemradio" data-cmd="skin:pad" id="opt-skin-pad">Engineer’s Pad</button>
+      <button role="menuitemradio" data-cmd="skin:lcars" id="opt-skin-lcars">Starship Console</button>
+      <button role="menuitemradio" data-cmd="skin:hp" id="opt-skin-hp">HP-Style Calculator</button>
     </div>
   </div>
 </header>
