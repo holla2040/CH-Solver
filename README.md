@@ -96,7 +96,8 @@ Typical models solve in well under a millisecond. The 3×3 nonlinear example con
 ```
 index.html            app shell (Variable / Rule sheets, subsheet tabs, menus)
 css/style.css         1-bit, original-Macintosh look (single light theme)
-fonts/CHChicago.woff2 pixel Chicago 12 font (2.7 KB)
+fonts/CHChicago.woff2 pixel Chicago 12 font for the interface (2.7 KB)
+fonts/CHMonaco.woff2  pixel Monaco 9-style font for sheet contents
 tools/font/           how the pixel font is made from ChicagoFLF
 js/engine.js          parser, direct + iterative solvers, list solve, units (no DOM; runs in Node)
 js/examples.js        example models
@@ -116,8 +117,10 @@ tools/build-single.js inlines everything into dist/ch-solver.html
 * [TK Solver 3.0 review, Design News](https://www.designnews.com/motion-control/tk-solver-3-0)
 * [TK Solver 5.0, R&D World](https://www.rdworldonline.com/tksolver-5-0-rules-based-mathematical-solutions/)
 
-**The look.** The interface copies the original 1984 Macintosh: 1-bit black and white, a 50% dithered desktop, striped title bars with close boxes, rounded-rectangle buttons, and the bitmap **Chicago** font. There's no dark theme, on purpose.
+**The look.** The interface copies the original 1984 Macintosh: 1-bit black and white, a 50% dithered desktop, striped title bars with close boxes, rounded-rectangle buttons, and two bitmap fonts: **Chicago** for menus, title bars, buttons, headers and messages, and **Monaco** (9 pt) for what you type and read in the sheets, meaning rules, variables, values, units, comments and lists. There's no dark theme, on purpose.
 
-**The font.** `fonts/CHChicago.woff2` is a true pixel font: each glyph is made of square pixels on Chicago 12's 12-pixel grid. It was made by rasterizing **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's Chicago, on its native grid. A few glyphs were then fixed by hand: the three-pixel descenders on g, j, p, q and y, plus `%`, `&`, `<`, `>`, `` ` `` and the arrows. The result is public domain too. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **View → Double Size** doubles every pixel, and large screens use double size by default.
+**The font.** `fonts/CHChicago.woff2` is a true pixel font: each glyph is made of square pixels on Chicago 12's 12-pixel grid. It was made by rasterizing **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's Chicago, on its native grid. A few glyphs were then fixed by hand: the three-pixel descenders on g, j, p, q and y, plus `%`, `&`, `<`, `>`, `` ` `` and the arrows. The result is public domain too.
+
+`fonts/CHMonaco.woff2` is an original pixel drawing in the style of Monaco 9: 6-pixel cells, 7-pixel capitals, a slashed zero (`tools/font/build-monaco.py`). It is also public domain. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **View → Double Size** doubles every pixel, and large screens use double size by default.
 
 TK!Solver is a trademark of Universal Technical Systems, Inc. CH!Solver is an independent homage and is not affiliated with UTS.

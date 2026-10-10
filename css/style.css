@@ -6,6 +6,14 @@
   font-weight: normal; font-style: normal; font-display: block;
 }
 
+/* CH Monaco: an original pixel font drawn in the style of Monaco 9, the
+   Mac's monospaced face, for sheet contents (see tools/font/build-monaco.py). */
+@font-face {
+  font-family: "CH Monaco";
+  src: url("../fonts/CHMonaco.woff2") format("woff2");
+  font-weight: normal; font-style: normal; font-display: block;
+}
+
 /* Layout: the 1984 Macintosh desktop, 1-bit only. 50% dither desk, menu bar
    with rounded screen corners, striped title bars with close boxes. The
    Variable Sheet sits over the Rule Sheet (as in TK!Solver), with subsheets
@@ -17,7 +25,8 @@
   --paper: #ffffff;
   --ink: #000000;
   --gray: #808080;       /* only for placeholders and disabled items */
-  --font: "CH Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;
+  --font: "CH Chicago", "Chicago", "ChicagoFLF", "Charcoal", "Geneva", sans-serif;          /* interface */
+  --mono: "CH Monaco", "Monaco", "Menlo", monospace;                                          /* sheet contents, 9 pt */
   --dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23fff'/%3E%3Crect width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3C/svg%3E");
   color-scheme: light;
 }
@@ -148,12 +157,15 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   padding: calc(2 * var(--u)) calc(5 * var(--u)) calc(1 * var(--u));
   border-bottom: var(--u) solid var(--ink);
 }
-.sheet td { border-bottom: var(--u) dotted var(--ink); padding: 0; height: calc(18 * var(--u)); vertical-align: middle; }
+.sheet td {
+  border-bottom: var(--u) dotted var(--ink); padding: 0; height: calc(15 * var(--u)); vertical-align: middle;
+  font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u));
+}
 .sheet tbody tr:last-child td { border-bottom: 0; }
 .sheet td + td, .sheet th + th { border-left: var(--u) solid var(--ink); }
 .sheet input {
-  width: 100%; height: calc(17 * var(--u)); border: 0; border-radius: 0; background: transparent;
-  padding: 0 calc(5 * var(--u)); display: block;
+  width: 100%; height: calc(14 * var(--u)); border: 0; border-radius: 0; background: transparent;
+  padding: 0 calc(5 * var(--u)); display: block; font: inherit;
 }
 .sheet input:focus { outline: none; background: var(--ink); color: var(--paper); caret-color: var(--paper); }
 .sheet input::placeholder { color: var(--gray); opacity: 1; }
@@ -165,7 +177,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
 .vars .st input, .rules td.st { text-align: center; text-transform: uppercase; }
 .vars td.out.has { cursor: copy; }
 .vars td.out.fresh { animation: blink 0.4s steps(2, jump-none) 1; }
-.vars .empty td { padding: calc(4 * var(--u)) calc(5 * var(--u)); color: var(--gray); }
+.vars .empty td, .lists .empty td { padding: calc(4 * var(--u)) calc(5 * var(--u)); color: var(--gray); font-family: var(--font); font-size: calc(12 * var(--u)); line-height: calc(16 * var(--u)); }
 @keyframes blink { 0% { background: var(--ink); color: var(--paper); } 100% { background: transparent; } }
 @media (prefers-reduced-motion: reduce) { .vars td.out.fresh { animation: none; } }
 
@@ -202,7 +214,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='6' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h11v1H0zM1 1h9v1H1zM2 2h7v1H2zM3 3h5v1H3zM4 4h3v1H4zM5 5h1v1H5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right calc(5 * var(--u)) center; background-size: calc(11 * var(--u)) calc(6 * var(--u));
 }
-.fill input { width: calc(56 * var(--u)); border: var(--u) solid var(--ink); border-radius: 0; background: var(--paper); padding: 0 calc(4 * var(--u)); min-height: calc(18 * var(--u)); }
+.fill input { font-family: var(--mono); font-size: calc(9 * var(--u)); width: calc(56 * var(--u)); border: var(--u) solid var(--ink); border-radius: 0; background: var(--paper); padding: 0 calc(4 * var(--u)); min-height: calc(18 * var(--u)); }
 .plot-y { display: flex; flex-wrap: wrap; gap: calc(4 * var(--u)) calc(12 * var(--u)); }
 .plot-y label { display: inline-flex; gap: calc(5 * var(--u)); align-items: center; cursor: default; }
 /* classic check boxes: a square with an X */
@@ -241,7 +253,7 @@ button, input, select, textarea { font: inherit; color: inherit; line-height: in
   width: 100%; border: var(--u) solid var(--ink); border-radius: 0; background: var(--paper); color: var(--ink);
   padding: calc(3 * var(--u)) calc(4 * var(--u));
 }
-.dialog textarea { min-height: calc(220 * var(--u)); resize: vertical; }
+.dialog textarea { min-height: calc(220 * var(--u)); resize: vertical; font-family: var(--mono); font-size: calc(9 * var(--u)); line-height: calc(11 * var(--u)); }
 .dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: calc(10 * var(--u)); flex-wrap: wrap; }
 .about-logo { font-size: calc(24 * var(--u)); line-height: calc(32 * var(--u)); }
 
