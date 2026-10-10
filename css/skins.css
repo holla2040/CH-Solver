@@ -14,6 +14,7 @@
 @font-face { font-family: "Archivo Narrow"; src: url("../fonts/skins/ArchivoNarrow-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Archivo Narrow"; src: url("../fonts/skins/ArchivoNarrow-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
 @font-face { font-family: "DSEG7 Classic"; src: url("../fonts/skins/DSEG7Classic-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "DSEG14 Classic"; src: url("../fonts/skins/DSEG14Classic-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 
 /* ================================================================ shared layer */
 html.skinned {
@@ -416,10 +417,35 @@ html.skinned[data-skin="hp"] .sheet-bar h2 { color: var(--gold); text-transform:
 html.skinned[data-skin="hp"] .bang { background: linear-gradient(#e7a046, var(--key-gold) 55%); color: #1b1110; padding: 5px 22px; }
 html.skinned[data-skin="hp"] .bang::after { font-weight: 600; letter-spacing: 0.08em; }
 html.skinned[data-skin="hp"] .sheet th { color: var(--gold); }
-/* outputs glow like the LED display */
-html.skinned[data-skin="hp"] .vars td.out { font-family: var(--font-led); font-size: 14px; letter-spacing: 0.06em; text-shadow: 0 0 6px var(--led-glow); border-bottom-color: #2a0b07; }
+/* Every sheet cell is part of the LED display: same dark-red window, red
+   segments. Numbers (Input, Output, list and unit values) use 7-segment
+   digits; letters, rules, names, units and comments use 14-segment
+   characters. Like real 14-segment displays there is no lowercase, so
+   lowercase letters show as capitals. */
+html.skinned[data-skin="hp"] {
+  --seg14: "DSEG14 Classic", "Archivo Narrow", monospace;
+  --seg7: "DSEG7 Classic", "DSEG14 Classic", "Archivo Narrow", monospace;
+  --led-dim: #5e160f;
+}
+html.skinned[data-skin="hp"] .pane-scroll { background: var(--led-bg); box-shadow: inset 0 2px 10px #000; }
+html.skinned[data-skin="hp"] .pane-scroll thead th { background: var(--case); }
+html.skinned[data-skin="hp"] .sheet td {
+  background: var(--led-bg); color: var(--led); text-shadow: 0 0 6px var(--led-glow);
+  font-family: var(--seg14); font-size: 13px; letter-spacing: 0.04em; word-spacing: 0.45em; border-bottom-color: #260a06;
+}
+html.skinned[data-skin="hp"] .sheet input { color: var(--led); }
+html.skinned[data-skin="hp"] .vars td.in, html.skinned[data-skin="hp"] .vars td.out,
+html.skinned[data-skin="hp"] .lists td, html.skinned[data-skin="hp"] .units td:nth-child(3), html.skinned[data-skin="hp"] .units td:nth-child(4) {
+  font-family: var(--seg7); font-size: 14px; letter-spacing: 0.06em;
+}
+html.skinned[data-skin="hp"] .vars td.name, html.skinned[data-skin="hp"] .lists td.computed input,
+html.skinned[data-skin="hp"] .vars tr.is-guess td.in input { color: var(--led); }
+html.skinned[data-skin="hp"] .sheet input::placeholder { color: var(--led-dim); opacity: 1; text-shadow: none; }
+html.skinned[data-skin="hp"] .sheet input:focus { background: #2a0907; color: #ff5a4a; caret-color: #ff5a4a; box-shadow: inset 0 0 0 1px #ff3b2f; }
 html.skinned[data-skin="hp"] .vars td.out.fresh { animation: none; }
-html.skinned[data-skin="hp"] .lists td.computed input { color: var(--led); text-shadow: 0 0 5px var(--led-glow); }
+html.skinned[data-skin="hp"] .rules td.st.unsatisfied { color: #ffb000; text-shadow: 0 0 6px rgb(255 176 0 / 60%); }
+html.skinned[data-skin="hp"] .rules td.st.error { background: var(--led); color: var(--led-bg); text-shadow: none; }
+html.skinned[data-skin="hp"] .vars .empty td, html.skinned[data-skin="hp"] .lists .empty td { font-family: var(--font-ui); color: #c46a5a; text-shadow: none; }
 html.skinned[data-skin="hp"] .tabs { border-bottom-color: #0d0b0a; gap: 8px; padding-bottom: 8px; }
 html.skinned[data-skin="hp"] .tabs button { border-radius: 6px 6px 9px 9px; margin: 0; font-size: 13px; padding: 5px 14px; }
 html.skinned[data-skin="hp"] .tabs button[aria-selected="true"] { background: linear-gradient(#4f86cf, var(--key-blue) 55%); color: #fff; }

@@ -56,7 +56,16 @@ Your model is autosaved in the browser's local storage. Use File → Save / Open
 | **Modern** | A current engineering app: quiet neutrals, one blue accent, IBM Plex Sans and JetBrains Mono. Follows your system's light or dark setting. |
 | **Engineer's Pad** | Green engineering computation paper with a 5-per-inch grid and margin rule. Graphite lettering, answers in red pencil, unsatisfied rules circled. |
 | **Starship Console** | An LCARS-inspired console: black field, rounded elbow frame bars, condensed capitals. Solve is **ENGAGE**, unsatisfied rules flash red alert, and solving gives a short acknowledgement tone. |
-| **HP-Style Calculator** | A 1970s pocket calculator: dark case, gold legends, keycap buttons, outputs in red seven-segment LEDs, and **R/S** to solve. |
+| **HP-Style Calculator** | A 1970s pocket calculator: dark case, gold legends, keycap buttons and **R/S** to solve. Every sheet is a red LED display: numbers in 7-segment digits, letters, rules, names and units in 14-segment characters. Like real 14-segment displays it has no lowercase, so `vx` and `VX` look the same. |
+
+<table>
+<tr><th>Classic Mac</th><th>Modern</th></tr>
+<tr><td><img src="docs/skins/classic.png" width="400" alt="Classic Mac skin"></td><td><img src="docs/skins/modern.png" width="400" alt="Modern skin, light"></td></tr>
+<tr><th>Modern (dark)</th><th>Engineer's Pad</th></tr>
+<tr><td><img src="docs/skins/modern-dark.png" width="400" alt="Modern skin, dark"></td><td><img src="docs/skins/pad.png" width="400" alt="Engineer's Pad skin"></td></tr>
+<tr><th>Starship Console</th><th>HP-Style Calculator</th></tr>
+<tr><td><img src="docs/skins/starship.png" width="400" alt="Starship Console skin"></td><td><img src="docs/skins/hp-style.png" width="400" alt="HP-Style Calculator skin"></td></tr>
+</table>
 
 Starship Console is a fan-style homage to the LCARS look and isn't affiliated with or endorsed by Paramount. HP-Style Calculator is a style homage and isn't affiliated with HP.
 
@@ -118,6 +127,7 @@ js/app.js             UI
 test/engine.test.js   engine tests (npm test)
 tools/build-single.js inlines everything into dist/MKSolver.html
 docs/screenshot.png   the screenshot above
+docs/skins/           a screenshot of each skin
 ```
 
 ## Sources
