@@ -1,0 +1,11 @@
+{
+  "name": "ch-solver",
+  "version": "0.1.0",
+  "description": "CH!Solver: a TK!Solver-style declarative equation solver that runs in the browser",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "node test/engine.test.js",
+    "build": "node tools/build-single.js"
+  }
+}

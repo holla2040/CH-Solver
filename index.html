@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- BUILD:HEAD START -->
+<title>CH!Solver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<!-- BUILD:HEAD END -->
+</head>
+<body>
+<!-- BUILD:BODY START -->
+<header class="menubar" id="menubar">
+  <div class="menu" data-menu="about">
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false">CH!Solver</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="about">About CH!Solver…</button>
+      <button role="menuitem" data-cmd="guide">Quick Guide</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="file">
+    <button class="menu-title" id="menu-file" aria-haspopup="true" aria-expanded="false">File</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="new">New Model</button>
+      <button role="menuitem" data-cmd="open">Open…</button>
+      <button role="menuitem" data-cmd="save">Save…<kbd>Ctrl S</kbd></button>
+      <hr>
+      <button role="menuitem" data-cmd="text">Model as Text…</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="edit">
+    <button class="menu-title" id="menu-edit" aria-haspopup="true" aria-expanded="false">Edit</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="clear-outputs">Clear Outputs</button>
+      <button role="menuitem" data-cmd="clear-inputs">Clear Inputs</button>
+      <button role="menuitem" data-cmd="outputs-to-guesses">Outputs → Guesses</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="solve">
+    <button class="menu-title" id="menu-solve" aria-haspopup="true" aria-expanded="false">Solve</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="solve">Solve<kbd>! or F9</kbd></button>
+      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
+      <hr>
+      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess unknowns</button>
+      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I type</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="examples">
+    <button class="menu-title" id="menu-examples" aria-haspopup="true" aria-expanded="false">Examples</button>
+    <div class="menu-panel" role="menu" id="examples-panel"></div>
+  </div>
+  <div class="menubar-spacer"></div>
+  <div class="menubar-model" id="model-title" title="Model name">Untitled</div>
+</header>
+
+<main class="desk">
+  <section class="status window" aria-live="polite">
+    <button class="solve-btn" id="solve-btn" title="Solve (! or F9)">Solve&nbsp;!</button>
+    <button class="solve-btn ghost" id="list-solve-btn" title="List Solve (Shift F9)">List Solve</button>
+    <p class="status-msg" id="status-msg">Type rules below, give some inputs, then press <b>!</b> to solve.</p>
+  </section>
+
+  <div class="columns">
+    <div class="col-main">
+      <section class="window" id="win-vars">
+        <h2 class="titlebar"><span>Variable Sheet</span></h2>
+        <div class="sheet-scroll">
+          <table class="sheet vars" id="var-table">
+            <colgroup><col class="c-st"><col class="c-in"><col class="c-name"><col class="c-out"><col class="c-unit"><col class="c-com"></colgroup>
+            <thead><tr><th title="Status: blank = input/output, G = guess, L = list">St</th><th>Input</th><th>Name</th><th>Output</th><th>Unit</th><th>Comment</th></tr></thead>
+            <tbody id="var-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="window" id="win-rules">
+        <h2 class="titlebar"><span>Rule Sheet</span></h2>
+        <div class="sheet-scroll">
+          <table class="sheet rules" id="rule-table">
+            <colgroup><col class="c-st"><col></colgroup>
+            <thead><tr><th title="* = not satisfied, ! = syntax error">St</th><th>Rule</th></tr></thead>
+            <tbody id="rule-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-side">
+      <section class="window" id="win-sub">
+        <h2 class="titlebar"><span id="sub-title">Plot Sheet</span></h2>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-tab="plot" id="tab-plot">Plot</button>
+          <button role="tab" data-tab="lists" id="tab-lists">Lists</button>
+          <button role="tab" data-tab="units" id="tab-units">Units</button>
+          <button role="tab" data-tab="guide" id="tab-guide">Guide</button>
+        </div>
+
+        <div class="pane" data-pane="plot" id="pane-plot">
+          <div class="plot-controls">
+            <label for="plot-x">X axis</label>
+            <select id="plot-x"></select>
+            <span class="plot-y-label">Y</span>
+            <div class="plot-y" id="plot-y"></div>
+          </div>
+          <div class="plot-wrap"><canvas id="plot-canvas" aria-label="Plot of list values"></canvas></div>
+          <p class="pane-note" id="plot-note"></p>
+        </div>
+
+        <div class="pane" data-pane="lists" id="pane-lists" hidden>
+          <form class="fill" id="fill-form">
+            <label for="fill-list">Fill</label>
+            <select id="fill-list"></select>
+            <label for="fill-from">from</label><input id="fill-from" value="0" inputmode="decimal">
+            <label for="fill-to">to</label><input id="fill-to" value="10" inputmode="decimal">
+            <label for="fill-n">steps</label><input id="fill-n" value="10" inputmode="numeric">
+            <button type="submit">Fill</button>
+          </form>
+          <div class="sheet-scroll"><table class="sheet lists" id="list-table"></table></div>
+          <p class="pane-note">Set a variable's <b>St</b> to <b>L</b> to link it to a list. Lists you type are inputs; List Solve fills the rest.</p>
+        </div>
+
+        <div class="pane" data-pane="units" id="pane-units" hidden>
+          <div class="sheet-scroll">
+            <table class="sheet units" id="unit-table">
+              <thead><tr><th>From (display)</th><th>To (calc)</th><th>Multiply by</th><th>Add</th></tr></thead>
+              <tbody id="unit-body"></tbody>
+            </table>
+          </div>
+          <p class="pane-note">A variable whose Unit matches a <b>From</b> entry is shown in that unit and calculated in the <b>To</b> unit: calc = display × factor + add.</p>
+        </div>
+
+        <div class="pane guide" data-pane="guide" id="pane-guide" hidden>
+          <h3>How it works</h3>
+          <p>Rules are equations, not assignments. <code>a + b = c / d</code> can be solved for any of its four variables, whichever one is unknown.</p>
+          <ol>
+            <li>Type rules in the <b>Rule Sheet</b>, one per line. Their variables appear in the Variable Sheet.</li>
+            <li>Type known values in the <b>Input</b> column.</li>
+            <li>Press <b>!</b> (or F9). Answers appear in the <b>Output</b> column.</li>
+          </ol>
+          <h3>Guesses and iteration</h3>
+          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, CH!Solver picks guess variables itself, starting at 1.</p>
+          <h3>Lists and plots</h3>
+          <p>Set <b>St</b> to <b>L</b>, enter values on the Lists tab (or use Fill), then choose <b>List Solve</b>. Each row is solved in turn and output lists are filled and plotted.</p>
+          <h3>Keys</h3>
+          <dl class="keys">
+            <dt>! or F9</dt><dd>Solve</dd>
+            <dt>Shift F9</dt><dd>List Solve</dd>
+            <dt>Enter</dt><dd>New rule below / next row</dd>
+            <dt>↑ ↓</dt><dd>Move between rows</dd>
+            <dt>Double-click Output</dt><dd>Move the answer to Input</dd>
+          </dl>
+          <h3>Syntax</h3>
+          <p><code>+ - * / ^</code>, parentheses, <code>"</code> starts a comment. Functions: <code>sin cos tan asin acos atan atan2 sinh cosh tanh sqrt exp ln log abs sgn int mod min max deg rad</code> and the constant <code>pi</code>. Trig uses radians.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="dialog-scrim" id="dialog" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <h2 id="dialog-title">About</h2>
+    <div id="dialog-body"></div>
+    <div class="dialog-actions" id="dialog-actions"></div>
+  </div>
+</div>
+<input type="file" id="file-input" accept=".chs,.json,application/json" hidden>
+
+<script src="js/engine.js"></script>
+<script src="js/examples.js"></script>
+<script src="js/app.js"></script>
+<!-- BUILD:BODY END -->
+</body>
+</html>

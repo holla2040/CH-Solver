@@ -1,0 +1,169 @@
+/* Example models for CH!Solver. Each is a complete saved model. */
+(function (root) {
+  'use strict';
+  const range = (a, b, step) => { const out = []; for (let x = a; x <= b + 1e-9; x += step) out.push(String(+x.toFixed(10))); return out; };
+
+  const examples = [
+    {
+      id: 'triangle',
+      title: 'Right Triangle',
+      desc: 'Solve forward, then backsolve: give c and area instead of a and b.',
+      rules: [
+        '" Any variable can be the unknown',
+        'c^2 = a^2 + b^2',
+        'area = a * b / 2',
+        'theta = deg(atan(b / a))',
+        'perim = a + b + c',
+      ],
+      vars: {
+        a: { input: '3', comment: 'leg' },
+        b: { input: '4', comment: 'leg' },
+        c: { comment: 'hypotenuse' },
+        area: { comment: 'try: clear a & b, enter c=13, area=30' },
+        theta: { unit: 'deg', comment: 'angle opposite b' },
+        perim: { comment: 'perimeter' },
+      },
+    },
+    {
+      id: 'simultaneous',
+      title: 'Three Simultaneous Equations',
+      desc: 'Nonlinear system with no inputs at all; guesses on x and y.',
+      rules: [
+        'x + y + z = 6',
+        'x * y * z = 6',
+        'x^2 + y^2 + z^2 = 14',
+      ],
+      vars: {
+        x: { st: 'G', input: '0.5', comment: 'guess — try 5 for another root' },
+        y: { st: 'G', input: '1.8', comment: 'guess' },
+        z: {},
+      },
+    },
+    {
+      id: 'loan',
+      title: 'Mortgage Payment',
+      desc: 'Find the payment, or enter a payment and backsolve the interest rate.',
+      rules: [
+        'pmt = P * i / (1 - (1 + i)^-n)',
+        'i = rate / 100 / 12   " monthly rate',
+        'n = years * 12',
+        'total = pmt * n',
+        'interest = total - P',
+      ],
+      vars: {
+        P: { input: '350000', unit: '$', comment: 'principal' },
+        rate: { input: '6.75', unit: '%/yr', comment: 'move pmt to input to solve for this' },
+        years: { input: '30', unit: 'yr' },
+        pmt: { unit: '$/mo', comment: 'monthly payment' },
+        i: { comment: 'monthly rate' },
+        n: { comment: 'payments' },
+        total: { unit: '$' },
+        interest: { unit: '$', comment: 'total interest paid' },
+      },
+    },
+    {
+      id: 'ladders',
+      title: 'Crossed Ladders',
+      desc: 'A classic puzzle: two ladders cross 10 ft up. How wide is the alley?',
+      rules: [
+        '" Ladders of length L1 and L2 lean across an alley of width w',
+        'h1 = sqrt(L1^2 - w^2)',
+        'h2 = sqrt(L2^2 - w^2)',
+        '1 / c = 1 / h1 + 1 / h2   " crossing height',
+      ],
+      vars: {
+        L1: { input: '30', unit: 'ft' },
+        L2: { input: '20', unit: 'ft' },
+        c: { input: '10', unit: 'ft', comment: 'height where they cross' },
+        w: { st: 'G', input: '10', unit: 'ft', comment: 'alley width (guess)' },
+        h1: { unit: 'ft', comment: 'top of ladder 1' },
+        h2: { unit: 'ft', comment: 'top of ladder 2' },
+      },
+    },
+    {
+      id: 'projectile',
+      title: 'Projectile Range',
+      desc: 'List solve over launch angle, with mph and ft converted by the Units sheet.',
+      rules: [
+        'vx = v0 * cos(rad(theta))',
+        'vy = v0 * sin(rad(theta))',
+        't = 2 * vy / g',
+        'range = vx * t',
+        'h_max = vy^2 / (2 * g)',
+      ],
+      vars: {
+        v0: { input: '60', unit: 'mph', comment: 'launch speed' },
+        theta: { st: 'L', input: '45', unit: 'deg', comment: 'launch angle (list)' },
+        g: { input: '9.80665', unit: 'm/s^2' },
+        vx: { unit: 'm/s' }, vy: { unit: 'm/s' },
+        t: { unit: 's', comment: 'time of flight' },
+        range: { st: 'L', unit: 'ft' },
+        h_max: { st: 'L', unit: 'ft', comment: 'peak height' },
+      },
+      units: [
+        { from: 'mph', to: 'm/s', factor: '0.44704', offset: '' },
+        { from: 'ft', to: 'm', factor: '0.3048', offset: '' },
+      ],
+      lists: { theta: { values: range(5, 85, 5), computed: false } },
+      plot: { x: 'theta', y: ['range', 'h_max'] },
+      solveList: true,
+    },
+    {
+      id: 'colebrook',
+      title: 'Pipe Friction (Colebrook)',
+      desc: 'Implicit friction factor: f appears on both sides. Water in a 4 in pipe.',
+      rules: [
+        '1 / sqrt(f) = -2 * log(eps / D / 3.7 + 2.51 / (Re * sqrt(f)))',
+        'Re = rho * V * D / mu',
+        'dP = f * (L / D) * rho * V^2 / 2',
+        'Q = V * pi * D^2 / 4',
+      ],
+      vars: {
+        rho: { input: '998', unit: 'kg/m^3', comment: 'water, 20 °C' },
+        mu: { input: '0.001002', unit: 'Pa*s' },
+        D: { input: '4', unit: 'in' },
+        eps: { input: '0.0018', unit: 'in', comment: 'commercial steel' },
+        L: { input: '300', unit: 'ft' },
+        Q: { input: '250', unit: 'gpm', comment: 'try making dP the input' },
+        V: { unit: 'm/s' },
+        Re: { comment: 'Reynolds number' },
+        f: { comment: 'Darcy friction factor' },
+        dP: { unit: 'psi', comment: 'pressure drop' },
+      },
+      units: [
+        { from: 'in', to: 'm', factor: '0.0254', offset: '' },
+        { from: 'ft', to: 'm', factor: '0.3048', offset: '' },
+        { from: 'gpm', to: 'm^3/s', factor: '6.30902e-5', offset: '' },
+        { from: 'psi', to: 'Pa', factor: '6894.757', offset: '' },
+      ],
+    },
+    {
+      id: 'gas',
+      title: 'Ideal Gas',
+      desc: 'PV = nRT with °C, liters and atmospheres converted to SI.',
+      rules: ['P * V = n * R * T'],
+      vars: {
+        P: { input: '1', unit: 'atm' },
+        V: { unit: 'L' },
+        n: { input: '1', unit: 'mol' },
+        R: { input: '8.314462618', unit: 'J/mol/K' },
+        T: { input: '0', unit: 'degC' },
+      },
+      units: [
+        { from: 'atm', to: 'Pa', factor: '101325', offset: '' },
+        { from: 'L', to: 'm^3', factor: '0.001', offset: '' },
+        { from: 'degC', to: 'K', factor: '1', offset: '273.15' },
+        { from: 'degF', to: 'K', factor: '5/9', offset: '255.3722222' },
+      ],
+    },
+    {
+      id: 'blank',
+      title: 'Blank Model',
+      desc: 'An empty Rule Sheet.',
+      rules: [''],
+      vars: {},
+    },
+  ];
+
+  root.CHExamples = examples;
+})(typeof self !== 'undefined' ? self : this);

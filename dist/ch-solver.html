@@ -1,0 +1,2315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CH!Solver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: a 1-bit 1985 desktop — dithered grey desk, square windows with
+   pinstriped title bars; Variable Sheet over Rule Sheet (as in TK!Solver),
+   subsheets (Plot / Lists / Units / Guide) in a side window on wide screens. */
+:root {
+  --paper: #ffffff;      /* window interior */
+  --ink: #000000;        /* text, borders, shadows */
+  --desk-a: #ffffff;     /* dither pattern, light dots */
+  --desk-b: #8a8a8f;     /* dither pattern, dark dots */
+  --dim: #5c5c63;        /* secondary text */
+  --rule: #c9c9cf;       /* faint grid lines */
+  --hilite: #000000;     /* selection / inverse video fill */
+  --hilite-ink: #ffffff;
+  --warn: #b3261e;       /* unsatisfied rule mark (semantic) */
+  --ok: #1d6b3a;
+
+  --font-chrome: "Pixelify Sans", "Chicago", "Charcoal", "Geneva", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", "Monaco", "Menlo", "DejaVu Sans Mono", monospace;
+  --font-prose: "IBM Plex Sans", "Geneva", system-ui, sans-serif;
+
+  --row: 1.9rem;
+  --fs-data: 0.875rem;
+  --fs-small: 0.78rem;
+  --fs-chrome: 1rem;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b0b0d; --ink: #ededf0; --desk-a: #0b0b0d; --desk-b: #4a4a52;
+    --dim: #a3a3ad; --rule: #34343b; --hilite: #ededf0; --hilite-ink: #0b0b0d;
+    --warn: #ff8a7a; --ok: #7fd49b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b0b0d; --ink: #ededf0; --desk-a: #0b0b0d; --desk-b: #4a4a52;
+  --dim: #a3a3ad; --rule: #34343b; --hilite: #ededf0; --hilite-ink: #0b0b0d;
+  --warn: #ff8a7a; --ok: #7fd49b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--desk-a);
+  background-image:
+    linear-gradient(45deg, var(--desk-b) 25%, transparent 25%, transparent 75%, var(--desk-b) 75%),
+    linear-gradient(45deg, var(--desk-b) 25%, transparent 25%, transparent 75%, var(--desk-b) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: var(--fs-data);
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+/* ---------------------------------------------------------------- menubar */
+.menubar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  display: flex; align-items: stretch; gap: 0;
+  background: var(--paper); border-bottom: 1px solid var(--ink);
+  padding-inline: 12px; height: 2rem;
+  font-family: var(--font-chrome); font-size: var(--fs-chrome);
+}
+.menu { position: relative; display: flex; }
+.menu-title {
+  border: 0; background: none; padding: 0 0.7rem; cursor: pointer; letter-spacing: 0.02em;
+}
+.menu-title.brand { font-weight: 700; }
+.menu.open .menu-title, .menu-title:hover { background: var(--hilite); color: var(--hilite-ink); }
+.menu-panel {
+  display: none; position: absolute; top: 100%; left: 0; min-width: 15rem;
+  background: var(--paper); border: 1px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+  padding: 2px 0; flex-direction: column;
+}
+.menu.open .menu-panel { display: flex; }
+.menu-panel button {
+  display: flex; justify-content: space-between; gap: 1.5rem; align-items: baseline;
+  border: 0; background: none; text-align: left; padding: 0.3rem 0.9rem 0.3rem 1.5rem; cursor: pointer;
+  position: relative; white-space: nowrap;
+}
+.menu-panel button:hover, .menu-panel button:focus-visible { background: var(--hilite); color: var(--hilite-ink); outline: none; }
+.menu-panel button[aria-checked="true"]::before { content: "✓"; position: absolute; left: 0.5rem; }
+.menu-panel kbd { font-family: var(--font-data); font-size: var(--fs-small); opacity: 0.75; }
+.menu-panel hr { border: 0; border-top: 1px dotted var(--ink); margin: 3px 0; width: 100%; }
+.menu-panel .ex-desc { display: block; font-family: var(--font-prose); font-size: var(--fs-small); opacity: 0.75; white-space: normal; }
+#examples-panel button { flex-direction: column; gap: 0.1rem; max-width: 22rem; white-space: normal; }
+.menubar-spacer { flex: 1; }
+.menubar-model { align-self: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+
+/* ---------------------------------------------------------------- desk */
+.desk {
+  padding-inline: 16px; padding-block: 16px 32px;
+  display: flex; flex-direction: column; gap: 14px;
+  max-width: 1500px; margin: 0 auto;
+}
+.columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 1100px) {
+  .columns { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+  .col-side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 2.9rem); }
+}
+.col-main, .col-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.window {
+  background: var(--paper); border: 1px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+  min-width: 0;
+}
+.titlebar {
+  margin: 0; height: 1.55rem; display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--ink);
+  background-image: repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px);
+  background-size: calc(100% - 8px) 13px; background-position: 4px 50%; background-repeat: no-repeat;
+  font-family: var(--font-chrome); font-size: var(--fs-chrome); font-weight: 500;
+}
+.titlebar span { background: var(--paper); padding: 0 0.6rem; text-wrap: balance; }
+
+/* ---------------------------------------------------------------- status line */
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 8px 10px; }
+.solve-btn {
+  font-family: var(--font-chrome); font-size: var(--fs-chrome); font-weight: 700;
+  border: 2px solid var(--ink); border-radius: 9px; background: var(--paper);
+  padding: 0.25rem 1rem; cursor: pointer; box-shadow: 0 0 0 1px var(--paper), 0 0 0 2px var(--ink);
+  margin: 2px;
+}
+.solve-btn.ghost { font-weight: 500; box-shadow: none; border-width: 1px; border-radius: 7px; }
+.solve-btn:active, .solve-btn.flash { background: var(--hilite); color: var(--hilite-ink); }
+.status-msg { margin: 0; flex: 1 1 18rem; min-width: 0; line-height: 1.4; }
+.status-msg.err { color: var(--warn); }
+.status-msg.ok::before { content: "✓ "; color: var(--ok); }
+.status-msg.err::before { content: "✗ "; }
+.status-msg .tag {
+  display: inline-block; font-size: var(--fs-small); border: 1px solid currentColor; padding: 0 0.35rem; margin-left: 0.35rem; color: var(--dim);
+}
+
+/* ---------------------------------------------------------------- sheets */
+.sheet-scroll { overflow-x: auto; }
+.sheet { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.sheet th {
+  font-family: var(--font-chrome); font-weight: 500; font-size: var(--fs-small); letter-spacing: 0.06em; text-transform: uppercase;
+  text-align: left; padding: 0.25rem 0.45rem; border-bottom: 1px solid var(--ink); white-space: nowrap;
+}
+.sheet td { border-bottom: 1px dotted var(--rule); padding: 0; height: var(--row); vertical-align: middle; }
+.sheet td + td, .sheet th + th { border-left: 1px solid var(--rule); }
+.sheet input {
+  width: 100%; height: var(--row); border: 0; background: transparent; padding: 0 0.45rem;
+  font-family: var(--font-data); font-size: var(--fs-data);
+}
+.sheet input:focus { outline: none; background: var(--hilite); color: var(--hilite-ink); }
+.sheet input::placeholder { color: var(--dim); opacity: 0.6; }
+.sheet .cell { padding: 0 0.45rem; white-space: nowrap; }
+
+.vars { min-width: 640px; }
+.vars col.c-st { width: 2.6rem; } .vars col.c-in { width: 18%; } .vars col.c-name { width: 15%; }
+.vars col.c-out { width: 19%; } .vars col.c-unit { width: 11%; }
+.vars .st input, .rules .st { text-align: center; font-weight: 600; text-transform: uppercase; }
+.vars td.name { font-weight: 600; }
+.vars td.out { cursor: default; }
+.vars td.out.has { cursor: copy; }
+.vars td.out.fresh { animation: blink 0.5s steps(2, jump-none) 1; }
+.vars tr.is-guess td.in input { font-style: italic; }
+.vars tr.is-input td.name::after { content: ""; }
+.vars .empty td { color: var(--dim); padding: 0.6rem 0.45rem; font-family: var(--font-prose); }
+@keyframes blink { 0% { background: var(--hilite); color: var(--hilite-ink); } 100% { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .vars td.out.fresh { animation: none; } }
+
+.rules col.c-st { width: 2.6rem; }
+.rules td.st { text-align: center; font-weight: 700; }
+.rules td.st.unsatisfied { color: var(--warn); }
+.rules td.st.error { background: var(--warn); color: var(--paper); }
+.rules td.st.unsolved { color: var(--dim); }
+.rules tr.error input { text-decoration: underline wavy var(--warn); text-underline-offset: 4px; }
+
+.lists { min-width: 100%; }
+.lists th small { font-family: var(--font-data); letter-spacing: 0; text-transform: none; color: var(--dim); margin-left: 0.3rem; }
+.lists td.idx { color: var(--dim); text-align: right; padding-right: 0.5rem; width: 2.5rem; font-size: var(--fs-small); }
+.lists td.computed input { color: var(--dim); }
+.lists .clear-list { border: 0; background: none; cursor: pointer; color: var(--dim); padding: 0 0.2rem; }
+.units input { min-width: 6rem; }
+
+/* ---------------------------------------------------------------- subsheets */
+.tabs { display: flex; border-bottom: 1px solid var(--ink); padding: 6px 8px 0; gap: 4px; flex-wrap: wrap; }
+.tabs button {
+  border: 1px solid var(--ink); border-bottom: 0; background: var(--paper); padding: 0.2rem 0.8rem; cursor: pointer;
+  font-family: var(--font-chrome); border-radius: 6px 6px 0 0; margin-bottom: -1px;
+}
+.tabs button[aria-selected="true"] { background: var(--hilite); color: var(--hilite-ink); }
+.pane { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+.pane-note { margin: 0; color: var(--dim); font-family: var(--font-prose); font-size: var(--fs-small); line-height: 1.45; max-width: 62ch; }
+
+.plot-controls, .fill { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.plot-controls select, .fill select, .fill input {
+  border: 1px solid var(--ink); background: var(--paper); padding: 0.15rem 0.3rem; border-radius: 0;
+}
+.fill input { width: 5rem; }
+.fill button {
+  border: 1px solid var(--ink); background: var(--paper); border-radius: 7px; padding: 0.15rem 0.8rem; cursor: pointer; font-family: var(--font-chrome);
+}
+.fill button:active { background: var(--hilite); color: var(--hilite-ink); }
+.plot-y-label { margin-left: 6px; }
+.plot-y { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.plot-y label { display: inline-flex; gap: 4px; align-items: center; cursor: pointer; }
+.plot-y input { accent-color: var(--ink); }
+.plot-wrap { width: 100%; aspect-ratio: 4 / 3; max-width: 100%; border: 1px solid var(--ink); }
+#plot-canvas { width: 100%; height: 100%; display: block; }
+
+.guide { font-family: var(--font-prose); line-height: 1.55; max-width: 66ch; }
+.guide h3 { margin: 0.4rem 0 0; font-family: var(--font-chrome); font-weight: 500; font-size: 1rem; text-wrap: balance; }
+.guide p, .guide ol { margin: 0; }
+.guide ol { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.guide code { font-family: var(--font-data); font-size: 0.85em; }
+.keys { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1rem; margin: 0; }
+.keys dt { font-family: var(--font-data); font-weight: 600; }
+.keys dd { margin: 0; }
+
+/* ---------------------------------------------------------------- dialog */
+.dialog-scrim { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--paper) 35%, transparent); }
+.dialog {
+  background: var(--paper); border: 1px solid var(--ink); outline: 3px solid var(--paper); box-shadow: 0 0 0 4px var(--ink), 4px 4px 0 4px var(--ink);
+  padding: 1.1rem 1.3rem; width: min(36rem, 100%); max-height: 85vh; overflow: auto;
+  display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--font-prose); line-height: 1.5;
+}
+.dialog h2 { margin: 0; font-family: var(--font-chrome); font-weight: 700; font-size: 1.2rem; }
+.dialog p { margin: 0; }
+.dialog textarea {
+  width: 100%; min-height: 14rem; font-family: var(--font-data); font-size: var(--fs-small);
+  border: 1px solid var(--ink); background: var(--paper); color: var(--ink); padding: 0.5rem; resize: vertical;
+}
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.dialog-actions button {
+  font-family: var(--font-chrome); border: 1px solid var(--ink); border-radius: 8px; background: var(--paper); padding: 0.25rem 1.1rem; cursor: pointer;
+}
+.dialog-actions button.default { border-width: 2px; box-shadow: 0 0 0 1px var(--paper), 0 0 0 2px var(--ink); font-weight: 700; }
+.dialog-actions button:active { background: var(--hilite); color: var(--hilite-ink); }
+.about-logo { font-family: var(--font-chrome); font-size: 2.2rem; font-weight: 700; line-height: 1; }
+
+@media (max-width: 560px) {
+  .menu-title { padding: 0 0.45rem; }
+  .menubar-model { display: none; }
+  .menu-panel { position: fixed; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 2rem); min-width: 0; }
+}
+
+</style>
+</head>
+<body>
+<header class="menubar" id="menubar">
+  <div class="menu" data-menu="about">
+    <button class="menu-title brand" id="menu-about" aria-haspopup="true" aria-expanded="false">CH!Solver</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="about">About CH!Solver…</button>
+      <button role="menuitem" data-cmd="guide">Quick Guide</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="file">
+    <button class="menu-title" id="menu-file" aria-haspopup="true" aria-expanded="false">File</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="new">New Model</button>
+      <button role="menuitem" data-cmd="open">Open…</button>
+      <button role="menuitem" data-cmd="save">Save…<kbd>Ctrl S</kbd></button>
+      <hr>
+      <button role="menuitem" data-cmd="text">Model as Text…</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="edit">
+    <button class="menu-title" id="menu-edit" aria-haspopup="true" aria-expanded="false">Edit</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="clear-outputs">Clear Outputs</button>
+      <button role="menuitem" data-cmd="clear-inputs">Clear Inputs</button>
+      <button role="menuitem" data-cmd="outputs-to-guesses">Outputs → Guesses</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="solve">
+    <button class="menu-title" id="menu-solve" aria-haspopup="true" aria-expanded="false">Solve</button>
+    <div class="menu-panel" role="menu">
+      <button role="menuitem" data-cmd="solve">Solve<kbd>! or F9</kbd></button>
+      <button role="menuitem" data-cmd="list-solve">List Solve<kbd>Shift F9</kbd></button>
+      <hr>
+      <button role="menuitemcheckbox" data-cmd="toggle-autoguess" id="opt-autoguess">Auto-guess unknowns</button>
+      <button role="menuitemcheckbox" data-cmd="toggle-autosolve" id="opt-autosolve">Solve as I type</button>
+    </div>
+  </div>
+  <div class="menu" data-menu="examples">
+    <button class="menu-title" id="menu-examples" aria-haspopup="true" aria-expanded="false">Examples</button>
+    <div class="menu-panel" role="menu" id="examples-panel"></div>
+  </div>
+  <div class="menubar-spacer"></div>
+  <div class="menubar-model" id="model-title" title="Model name">Untitled</div>
+</header>
+
+<main class="desk">
+  <section class="status window" aria-live="polite">
+    <button class="solve-btn" id="solve-btn" title="Solve (! or F9)">Solve&nbsp;!</button>
+    <button class="solve-btn ghost" id="list-solve-btn" title="List Solve (Shift F9)">List Solve</button>
+    <p class="status-msg" id="status-msg">Type rules below, give some inputs, then press <b>!</b> to solve.</p>
+  </section>
+
+  <div class="columns">
+    <div class="col-main">
+      <section class="window" id="win-vars">
+        <h2 class="titlebar"><span>Variable Sheet</span></h2>
+        <div class="sheet-scroll">
+          <table class="sheet vars" id="var-table">
+            <colgroup><col class="c-st"><col class="c-in"><col class="c-name"><col class="c-out"><col class="c-unit"><col class="c-com"></colgroup>
+            <thead><tr><th title="Status: blank = input/output, G = guess, L = list">St</th><th>Input</th><th>Name</th><th>Output</th><th>Unit</th><th>Comment</th></tr></thead>
+            <tbody id="var-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="window" id="win-rules">
+        <h2 class="titlebar"><span>Rule Sheet</span></h2>
+        <div class="sheet-scroll">
+          <table class="sheet rules" id="rule-table">
+            <colgroup><col class="c-st"><col></colgroup>
+            <thead><tr><th title="* = not satisfied, ! = syntax error">St</th><th>Rule</th></tr></thead>
+            <tbody id="rule-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-side">
+      <section class="window" id="win-sub">
+        <h2 class="titlebar"><span id="sub-title">Plot Sheet</span></h2>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-tab="plot" id="tab-plot">Plot</button>
+          <button role="tab" data-tab="lists" id="tab-lists">Lists</button>
+          <button role="tab" data-tab="units" id="tab-units">Units</button>
+          <button role="tab" data-tab="guide" id="tab-guide">Guide</button>
+        </div>
+
+        <div class="pane" data-pane="plot" id="pane-plot">
+          <div class="plot-controls">
+            <label for="plot-x">X axis</label>
+            <select id="plot-x"></select>
+            <span class="plot-y-label">Y</span>
+            <div class="plot-y" id="plot-y"></div>
+          </div>
+          <div class="plot-wrap"><canvas id="plot-canvas" aria-label="Plot of list values"></canvas></div>
+          <p class="pane-note" id="plot-note"></p>
+        </div>
+
+        <div class="pane" data-pane="lists" id="pane-lists" hidden>
+          <form class="fill" id="fill-form">
+            <label for="fill-list">Fill</label>
+            <select id="fill-list"></select>
+            <label for="fill-from">from</label><input id="fill-from" value="0" inputmode="decimal">
+            <label for="fill-to">to</label><input id="fill-to" value="10" inputmode="decimal">
+            <label for="fill-n">steps</label><input id="fill-n" value="10" inputmode="numeric">
+            <button type="submit">Fill</button>
+          </form>
+          <div class="sheet-scroll"><table class="sheet lists" id="list-table"></table></div>
+          <p class="pane-note">Set a variable's <b>St</b> to <b>L</b> to link it to a list. Lists you type are inputs; List Solve fills the rest.</p>
+        </div>
+
+        <div class="pane" data-pane="units" id="pane-units" hidden>
+          <div class="sheet-scroll">
+            <table class="sheet units" id="unit-table">
+              <thead><tr><th>From (display)</th><th>To (calc)</th><th>Multiply by</th><th>Add</th></tr></thead>
+              <tbody id="unit-body"></tbody>
+            </table>
+          </div>
+          <p class="pane-note">A variable whose Unit matches a <b>From</b> entry is shown in that unit and calculated in the <b>To</b> unit: calc = display × factor + add.</p>
+        </div>
+
+        <div class="pane guide" data-pane="guide" id="pane-guide" hidden>
+          <h3>How it works</h3>
+          <p>Rules are equations, not assignments. <code>a + b = c / d</code> can be solved for any of its four variables, whichever one is unknown.</p>
+          <ol>
+            <li>Type rules in the <b>Rule Sheet</b>, one per line. Their variables appear in the Variable Sheet.</li>
+            <li>Type known values in the <b>Input</b> column.</li>
+            <li>Press <b>!</b> (or F9). Answers appear in the <b>Output</b> column.</li>
+          </ol>
+          <h3>Guesses and iteration</h3>
+          <p>When no rule has a single unknown, the direct solver gets stuck. Give a variable a starting value and set its <b>St</b> to <b>G</b>. The iterative solver adjusts the guesses with Newton–Raphson until every rule balances. With <i>Auto-guess</i> on, CH!Solver picks guess variables itself, starting at 1.</p>
+          <h3>Lists and plots</h3>
+          <p>Set <b>St</b> to <b>L</b>, enter values on the Lists tab (or use Fill), then choose <b>List Solve</b>. Each row is solved in turn and output lists are filled and plotted.</p>
+          <h3>Keys</h3>
+          <dl class="keys">
+            <dt>! or F9</dt><dd>Solve</dd>
+            <dt>Shift F9</dt><dd>List Solve</dd>
+            <dt>Enter</dt><dd>New rule below / next row</dd>
+            <dt>↑ ↓</dt><dd>Move between rows</dd>
+            <dt>Double-click Output</dt><dd>Move the answer to Input</dd>
+          </dl>
+          <h3>Syntax</h3>
+          <p><code>+ - * / ^</code>, parentheses, <code>"</code> starts a comment. Functions: <code>sin cos tan asin acos atan atan2 sinh cosh tanh sqrt exp ln log abs sgn int mod min max deg rad</code> and the constant <code>pi</code>. Trig uses radians.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="dialog-scrim" id="dialog" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <h2 id="dialog-title">About</h2>
+    <div id="dialog-body"></div>
+    <div class="dialog-actions" id="dialog-actions"></div>
+  </div>
+</div>
+<input type="file" id="file-input" accept=".chs,.json,application/json" hidden>
+
+<script>
+/*
+ * CH!Solver engine
+ * ----------------
+ * A declarative equation solver in the spirit of TK!Solver (Software Arts, 1982;
+ * Macintosh edition 1984-85). Rules are equations, not assignments: any rule can
+ * be solved for any one of its variables.
+ *
+ *   1. Parser          rule text -> AST -> compiled closures
+ *   2. Direct solver   repeatedly find a rule with exactly one unknown and solve
+ *                      it for that unknown (symbolic inversion first, numeric 1-D
+ *                      root finding as a fallback).
+ *   3. Iterative solver  when the direct solver stalls, guessed variables are
+ *                      treated as provisionally known, the direct solver is run
+ *                      again, and the rules left over (fully known but unused)
+ *                      become residuals. Levenberg-Marquardt (damped Newton)
+ *                      adjusts the guesses until every residual is zero.
+ *   4. List solver     re-solve the model once per element of input lists.
+ *   5. Units           display unit <-> calculation unit conversions.
+ *
+ * Works in the browser (window.CHEngine) and in Node (module.exports).
+ */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.CHEngine = api;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ------------------------------------------------------------------ parser
+
+  function tokenize(src) {
+    const toks = [];
+    let i = 0;
+    while (i < src.length) {
+      const c = src[i];
+      if (c === ' ' || c === '\t' || c === '\r' || c === '\n') { i++; continue; }
+      // TK-style comment: a double quote starts a comment to end of line.
+      if (c === '"' || c === ';' || (c === '/' && src[i + 1] === '/')) break;
+      if ((c >= '0' && c <= '9') || c === '.') {
+        const m = /^(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/.exec(src.slice(i));
+        if (!m) throw new SyntaxError(`bad number at column ${i + 1}`);
+        toks.push({ type: 'num', value: parseFloat(m[0]), pos: i });
+        i += m[0].length;
+        continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        const m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(src.slice(i));
+        toks.push({ type: 'id', value: m[0], pos: i });
+        i += m[0].length;
+        continue;
+      }
+      if (c === '*' && src[i + 1] === '*') { toks.push({ type: 'op', value: '^', pos: i }); i += 2; continue; }
+      if ('+-*/^(),='.includes(c)) { toks.push({ type: 'op', value: c, pos: i }); i++; continue; }
+      throw new SyntaxError(`unexpected '${c}' at column ${i + 1}`);
+    }
+    toks.push({ type: 'eof', pos: i });
+    return toks;
+  }
+
+  const FUNCS = {
+    sin: [1, Math.sin], cos: [1, Math.cos], tan: [1, Math.tan],
+    asin: [1, Math.asin], acos: [1, Math.acos], atan: [1, Math.atan],
+    atan2: [2, Math.atan2],
+    sinh: [1, Math.sinh], cosh: [1, Math.cosh], tanh: [1, Math.tanh],
+    asinh: [1, Math.asinh], acosh: [1, Math.acosh], atanh: [1, Math.atanh],
+    sqrt: [1, Math.sqrt], exp: [1, Math.exp], ln: [1, Math.log],
+    log: [1, Math.log10], log10: [1, Math.log10],
+    abs: [1, Math.abs], sgn: [1, Math.sign], sign: [1, Math.sign],
+    int: [1, Math.trunc], floor: [1, Math.floor], ceil: [1, Math.ceil], round: [1, Math.round],
+    mod: [2, (a, b) => a - b * Math.floor(a / b)],
+    min: [-1, Math.min], max: [-1, Math.max],
+    deg: [1, (r) => r * 180 / Math.PI], rad: [1, (d) => d * Math.PI / 180],
+    pi: [0, () => Math.PI],
+  };
+  const CONSTANTS = { pi: Math.PI };
+
+  function parseExpression(toks, state) {
+    const peek = () => toks[state.i];
+    const next = () => toks[state.i++];
+    const isOp = (v) => peek().type === 'op' && peek().value === v;
+    const expect = (v) => {
+      if (!isOp(v)) throw new SyntaxError(`expected '${v}' at column ${peek().pos + 1}`);
+      next();
+    };
+
+    function add() {
+      let a = mul();
+      while (isOp('+') || isOp('-')) {
+        const op = next().value;
+        a = { t: 'bin', op, a, b: mul() };
+      }
+      return a;
+    }
+    function mul() {
+      let a = unary();
+      while (isOp('*') || isOp('/')) {
+        const op = next().value;
+        a = { t: 'bin', op, a, b: unary() };
+      }
+      return a;
+    }
+    function unary() {
+      if (isOp('-')) { next(); return { t: 'neg', a: unary() }; }
+      if (isOp('+')) { next(); return unary(); }
+      return pow();
+    }
+    function pow() {
+      const base = primary();
+      if (isOp('^')) { next(); return { t: 'bin', op: '^', a: base, b: unary() }; }
+      return base;
+    }
+    function primary() {
+      const tk = peek();
+      if (tk.type === 'num') { next(); return { t: 'num', v: tk.value }; }
+      if (tk.type === 'id') {
+        next();
+        if (isOp('(')) {
+          const name = tk.value.toLowerCase();
+          const fn = FUNCS[name];
+          if (!fn) throw new SyntaxError(`unknown function '${tk.value}'`);
+          next();
+          const args = [];
+          if (!isOp(')')) {
+            args.push(add());
+            while (isOp(',')) { next(); args.push(add()); }
+          }
+          expect(')');
+          if (fn[0] >= 0 && args.length !== fn[0]) {
+            throw new SyntaxError(`${name}() takes ${fn[0]} argument${fn[0] === 1 ? '' : 's'}`);
+          }
+          if (fn[0] < 0 && args.length === 0) throw new SyntaxError(`${name}() needs arguments`);
+          return { t: 'call', f: name, args };
+        }
+        if (Object.prototype.hasOwnProperty.call(CONSTANTS, tk.value)) return { t: 'num', v: CONSTANTS[tk.value], name: tk.value };
+        return { t: 'var', n: tk.value };
+      }
+      if (tk.type === 'op' && tk.value === '(') {
+        next();
+        const e = add();
+        expect(')');
+        return e;
+      }
+      if (tk.type === 'eof') throw new SyntaxError('unexpected end of rule');
+      throw new SyntaxError(`unexpected '${tk.value}' at column ${tk.pos + 1}`);
+    }
+    return add();
+  }
+
+  /** Parse one rule line. Returns null for blank / comment-only lines. */
+  function parseRule(src) {
+    const toks = tokenize(src);
+    if (toks[0].type === 'eof') return null;
+    const state = { i: 0 };
+    const lhs = parseExpression(toks, state);
+    const tk = toks[state.i];
+    if (!(tk.type === 'op' && tk.value === '=')) {
+      if (tk.type === 'eof') throw new SyntaxError("a rule needs an '=' sign");
+      throw new SyntaxError(`unexpected '${tk.value}' at column ${tk.pos + 1}`);
+    }
+    state.i++;
+    const rhs = parseExpression(toks, state);
+    const end = toks[state.i];
+    if (end.type !== 'eof') {
+      if (end.type === 'op' && end.value === '=') throw new SyntaxError("only one '=' allowed per rule");
+      throw new SyntaxError(`unexpected '${end.value}' at column ${end.pos + 1}`);
+    }
+    return { lhs, rhs };
+  }
+
+  /** Parse a stand-alone expression (used for Input cells: "2*pi", "1e-3"). */
+  function parseExpr(src) {
+    const toks = tokenize(src);
+    if (toks[0].type === 'eof') return null;
+    const state = { i: 0 };
+    const e = parseExpression(toks, state);
+    if (toks[state.i].type !== 'eof') throw new SyntaxError(`unexpected '${toks[state.i].value}'`);
+    return e;
+  }
+
+  function collectVars(node, out) {
+    switch (node.t) {
+      case 'var': if (!out.includes(node.n)) out.push(node.n); break;
+      case 'neg': collectVars(node.a, out); break;
+      case 'bin': collectVars(node.a, out); collectVars(node.b, out); break;
+      case 'call': node.args.forEach((a) => collectVars(a, out)); break;
+    }
+    return out;
+  }
+
+  function countVar(node, v) {
+    switch (node.t) {
+      case 'var': return node.n === v ? 1 : 0;
+      case 'neg': return countVar(node.a, v);
+      case 'bin': return countVar(node.a, v) + countVar(node.b, v);
+      case 'call': return node.args.reduce((s, a) => s + countVar(a, v), 0);
+      default: return 0;
+    }
+  }
+
+  function compile(node) {
+    switch (node.t) {
+      case 'num': { const v = node.v; return () => v; }
+      case 'var': { const n = node.n; return (env) => env[n]; }
+      case 'neg': { const a = compile(node.a); return (env) => -a(env); }
+      case 'bin': {
+        const a = compile(node.a), b = compile(node.b);
+        switch (node.op) {
+          case '+': return (env) => a(env) + b(env);
+          case '-': return (env) => a(env) - b(env);
+          case '*': return (env) => a(env) * b(env);
+          case '/': return (env) => a(env) / b(env);
+          case '^': return (env) => Math.pow(a(env), b(env));
+        }
+        break;
+      }
+      case 'call': {
+        const fn = FUNCS[node.f][1];
+        const args = node.args.map(compile);
+        if (args.length === 0) return () => fn();
+        if (args.length === 1) { const a = args[0]; return (env) => fn(a(env)); }
+        if (args.length === 2) { const a = args[0], b = args[1]; return (env) => fn(a(env), b(env)); }
+        return (env) => fn(...args.map((f) => f(env)));
+      }
+    }
+    throw new Error('compile: bad node');
+  }
+
+  function toText(node) {
+    switch (node.t) {
+      case 'num': return node.name || String(node.v);
+      case 'var': return node.n;
+      case 'neg': return `-${wrap(node.a)}`;
+      case 'bin': return `${wrap(node.a)} ${node.op} ${wrap(node.b)}`;
+      case 'call': return `${node.f}(${node.args.map(toText).join(', ')})`;
+    }
+    function wrap(n) { return n.t === 'bin' ? `(${toText(n)})` : toText(n); }
+  }
+
+  /** Evaluate a constant expression such as "2*pi" or "1.5e3". NaN if invalid. */
+  function evalConst(src) {
+    if (src == null) return NaN;
+    const s = String(src).trim();
+    if (s === '') return NaN;
+    try {
+      const e = parseExpr(s);
+      if (!e || collectVars(e, []).length) return NaN;
+      return compile(e)({});
+    } catch (_) {
+      return NaN;
+    }
+  }
+
+  // ------------------------------------------------------------------ model
+
+  /**
+   * Build a model from rule source lines.
+   * Returns { rules: [...], variables: [names in order of first appearance] }.
+   * Each rule: { index, src, ok, error, vars, lhs, rhs, L, R }.
+   */
+  function buildModel(lines) {
+    const variables = [];
+    const rules = lines.map((src, index) => {
+      const rule = { index, src, ok: false, blank: false, error: null, vars: [] };
+      try {
+        const p = parseRule(src);
+        if (!p) { rule.blank = true; return rule; }
+        rule.lhs = p.lhs; rule.rhs = p.rhs;
+        rule.L = compile(p.lhs); rule.R = compile(p.rhs);
+        rule.vars = collectVars(p.rhs, collectVars(p.lhs, []));
+        rule.ok = true;
+        rule.vars.forEach((v) => { if (!variables.includes(v)) variables.push(v); });
+      } catch (e) {
+        rule.error = e.message;
+      }
+      return rule;
+    });
+    return { rules, variables };
+  }
+
+  // ------------------------------------------------------------ 1-D solving
+
+  const TOL = 1e-11;      // scaled residual accepted as "satisfied"
+  const CHECK_TOL = 1e-6; // looser tolerance for reporting consistency
+
+  function scaledResidual(rule, env) {
+    const l = rule.L(env), r = rule.R(env);
+    const d = l - r;
+    if (!Number.isFinite(d)) {
+      // Exact infinities on both sides (rare) count as equal.
+      return l === r ? 0 : NaN;
+    }
+    return d / Math.max(1, Math.abs(l), Math.abs(r));
+  }
+
+  /**
+   * Symbolically isolate variable v (which occurs exactly once in node) so that
+   * node == target. Returns a number, or undefined when an operation along the
+   * path is not invertible (then we fall back to numeric root finding).
+   */
+  function isolate(node, v, target, env, hint) {
+    const has = (n) => countVar(n, v) > 0;
+    const val = (n) => compile(n)(env);
+    switch (node.t) {
+      case 'var': return target;
+      case 'neg': return isolate(node.a, v, -target, env, hint);
+      case 'bin': {
+        const inA = has(node.a);
+        const other = val(inA ? node.b : node.a);
+        switch (node.op) {
+          case '+': return isolate(inA ? node.a : node.b, v, target - other, env, hint);
+          case '-': return inA ? isolate(node.a, v, target + other, env, hint)
+                               : isolate(node.b, v, other - target, env, hint);
+          case '*': if (other === 0) return undefined;
+                    return isolate(inA ? node.a : node.b, v, target / other, env, hint);
+          case '/': if (inA) return isolate(node.a, v, target * other, env, hint);
+                    if (target === 0) return undefined;
+                    return isolate(node.b, v, other / target, env, hint);
+          case '^': {
+            if (inA) {
+              const p = other;
+              if (p === 0) return undefined;
+              let root;
+              const isInt = Number.isInteger(p);
+              if (target < 0 && isInt && Math.abs(p) % 2 === 1) root = -Math.pow(-target, 1 / p);
+              else root = Math.pow(target, 1 / p);
+              // Even powers have two real roots (+/-). Without a hint take the
+              // positive one; with a hint (guess or last answer) take the closer.
+              if (isInt && p % 2 === 0 && Number.isFinite(root) && hint !== undefined) {
+                const r1 = isolate(node.a, v, root, env, hint);
+                const r2 = isolate(node.a, v, -root, env, hint);
+                if (r1 === undefined || !Number.isFinite(r1)) return r2;
+                if (r2 === undefined || !Number.isFinite(r2)) return r1;
+                return Math.abs(r1 - hint) <= Math.abs(r2 - hint) ? r1 : r2;
+              }
+              return isolate(node.a, v, root, env, hint);
+            }
+            const base = other;
+            if (base <= 0 || base === 1 || target <= 0) return undefined;
+            return isolate(node.b, v, Math.log(target) / Math.log(base), env, hint);
+          }
+        }
+        return undefined;
+      }
+      case 'call': {
+        if (node.args.length !== 1) return undefined;
+        const inv = {
+          sin: Math.asin, cos: Math.acos, tan: Math.atan,
+          asin: Math.sin, acos: Math.cos, atan: Math.tan,
+          sinh: Math.asinh, asinh: Math.sinh, cosh: Math.acosh, acosh: Math.cosh,
+          tanh: Math.atanh, atanh: Math.tanh,
+          exp: Math.log, ln: Math.exp, log: (t) => Math.pow(10, t), log10: (t) => Math.pow(10, t),
+          sqrt: (t) => (t >= 0 ? t * t : NaN),
+          deg: (t) => t * Math.PI / 180, rad: (t) => t * 180 / Math.PI,
+        }[node.f];
+        if (!inv) return undefined;
+        return isolate(node.args[0], v, inv(target), env, hint);
+      }
+    }
+    return undefined;
+  }
+
+  function newton1D(g, x0, accept) {
+    let x = x0;
+    let fx = g(x);
+    if (!Number.isFinite(fx)) return null;
+    for (let it = 0; it < 100; it++) {
+      if (accept(x)) return x;
+      const h = 1e-7 * Math.max(1, Math.abs(x));
+      let d = (g(x + h) - g(x - h)) / (2 * h);
+      if (!Number.isFinite(d) || d === 0) {
+        d = (g(x + h) - fx) / h;
+        if (!Number.isFinite(d) || d === 0) return null;
+      }
+      const step = fx / d;
+      let lam = 1, xn, fn;
+      for (let k = 0; k < 40; k++) {
+        xn = x - lam * step;
+        fn = g(xn);
+        if (Number.isFinite(fn) && Math.abs(fn) < Math.abs(fx)) break;
+        lam /= 2;
+      }
+      if (!Number.isFinite(fn) || Math.abs(fn) >= Math.abs(fx)) return accept(x) ? x : null;
+      x = xn; fx = fn;
+    }
+    return accept(x) ? x : null;
+  }
+
+  function brent(g, a, b, fa, fb, accept) {
+    // Bisection/secant hybrid (Illinois-flavoured regula falsi with bisection guard).
+    for (let it = 0; it < 200; it++) {
+      let m = b - fb * (b - a) / (fb - fa);
+      if (!(m > Math.min(a, b) && m < Math.max(a, b))) m = (a + b) / 2;
+      if (it % 3 === 2) m = (a + b) / 2;
+      const fm = g(m);
+      if (!Number.isFinite(fm)) return null;
+      if (accept(m)) return m;
+      if (Math.sign(fm) === Math.sign(fa)) { a = m; fa = fm; } else { b = m; fb = fm; }
+      if (Math.abs(b - a) <= 1e-15 * Math.max(1, Math.abs(a))) return accept(m) ? m : (Math.abs(fa) < Math.abs(fb) ? a : b);
+    }
+    return null;
+  }
+
+  /** Solve g(x)=0 numerically, starting near x0. */
+  function solve1D(g, x0, accept) {
+    const starts = [x0, 1, 0.1, -1, 10, 0.01, -10, 100, 1e-3, 1000, -100, 1e4, 1e-6, 1e6];
+    const seen = new Set();
+    for (const s of starts) {
+      if (!Number.isFinite(s) || seen.has(s)) continue;
+      seen.add(s);
+      const r = newton1D(g, s, accept);
+      if (r !== null) return r;
+    }
+    // Bracket scan on a logarithmic grid.
+    const pts = [0];
+    for (let k = -8; k <= 10; k += 0.25) { pts.push(Math.pow(10, k)); pts.push(-Math.pow(10, k)); }
+    pts.sort((a, b) => a - b);
+    let pa = null, fa = null;
+    for (const p of pts) {
+      const fp = g(p);
+      if (!Number.isFinite(fp)) { pa = null; continue; }
+      if (accept(p)) return p;
+      if (pa !== null && Math.sign(fp) !== Math.sign(fa)) {
+        const r = brent(g, pa, p, fa, fp, accept);
+        if (r !== null && accept(r)) return r;
+      }
+      pa = p; fa = fp;
+    }
+    return null;
+  }
+
+  /** Solve one rule for variable v given env. Returns a finite number or NaN. */
+  function solveRuleFor(rule, v, env, hint) {
+    const nL = countVar(rule.lhs, v), nR = countVar(rule.rhs, v);
+    const accept = (x) => {
+      env[v] = x;
+      const r = scaledResidual(rule, env);
+      return Number.isFinite(r) && Math.abs(r) < TOL * 10;
+    };
+    // 1) Symbolic isolation (exactly one occurrence).
+    if (nL + nR === 1) {
+      try {
+        const side = nL ? rule.lhs : rule.rhs;
+        const other = nL ? rule.R : rule.L;
+        const target = other(env);
+        if (Number.isFinite(target)) {
+          const x = isolate(side, v, target, env, hint);
+          if (x !== undefined && Number.isFinite(x) && accept(x)) return x;
+        }
+      } catch (_) { /* fall through to numeric */ }
+    }
+    // 2) Numeric root finding.
+    const g = (x) => { env[v] = x; return rule.L(env) - rule.R(env); };
+    const x0 = Number.isFinite(hint) ? hint : 1;
+    const x = solve1D(g, x0, accept);
+    if (x !== null && accept(x)) return x;
+    delete env[v];
+    return NaN;
+  }
+
+  // ----------------------------------------------------------- direct solver
+
+  /**
+   * Consecutive substitution: keep solving rules that have exactly one unknown.
+   * Mutates env and known. Returns { used, stalled, failed, checks }.
+   */
+  function directSolve(model, env, known, hints) {
+    const rules = model.rules.filter((r) => r.ok);
+    const used = new Set();
+    const failed = new Set();
+    let progress = true;
+    while (progress) {
+      progress = false;
+      for (const rule of rules) {
+        if (used.has(rule.index) || failed.has(rule.index)) continue;
+        const unk = rule.vars.filter((v) => !known.has(v));
+        if (unk.length !== 1) continue;
+        const v = unk[0];
+        const hint = hints && Number.isFinite(hints[v]) ? hints[v] : undefined;
+        const x = solveRuleFor(rule, v, env, hint);
+        if (Number.isFinite(x)) {
+          env[v] = x; known.add(v); used.add(rule.index); progress = true;
+        } else {
+          failed.add(rule.index);
+        }
+      }
+    }
+    const stalled = [], checks = [];
+    for (const rule of rules) {
+      if (used.has(rule.index)) continue;
+      const unk = rule.vars.filter((v) => !known.has(v));
+      if (unk.length) stalled.push(rule.index);
+      else checks.push(rule.index);
+    }
+    return { used, failed, stalled, checks };
+  }
+
+  /** Same propagation as directSolve but only tracks which variables are known. */
+  function structural(model, known) {
+    known = new Set(known);
+    const rules = model.rules.filter((r) => r.ok);
+    const used = new Set();
+    let progress = true;
+    while (progress) {
+      progress = false;
+      for (const rule of rules) {
+        if (used.has(rule.index)) continue;
+        const unk = rule.vars.filter((v) => !known.has(v));
+        if (unk.length === 1) { known.add(unk[0]); used.add(rule.index); progress = true; }
+      }
+    }
+    const stalled = [], checks = [];
+    for (const rule of rules) {
+      if (used.has(rule.index)) continue;
+      if (rule.vars.some((v) => !known.has(v))) stalled.push(rule.index);
+      else checks.push(rule.index);
+    }
+    return { known, used, stalled, checks };
+  }
+
+  // -------------------------------------------------------- linear algebra
+
+  function solveLinear(A, b) {
+    const n = b.length;
+    const M = A.map((row, i) => row.concat([b[i]]));
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+      if (Math.abs(M[p][c]) < 1e-300) return null;
+      [M[c], M[p]] = [M[p], M[c]];
+      for (let r = c + 1; r < n; r++) {
+        const f = M[r][c] / M[c][c];
+        if (f === 0) continue;
+        for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k];
+      }
+    }
+    const x = new Array(n);
+    for (let r = n - 1; r >= 0; r--) {
+      let s = M[r][n];
+      for (let k = r + 1; k < n; k++) s -= M[r][k] * x[k];
+      x[r] = s / M[r][r];
+    }
+    return x;
+  }
+
+  const sumSq = (r) => r.reduce((s, x) => s + x * x, 0);
+  const maxAbs = (r) => r.reduce((s, x) => Math.max(s, Math.abs(x)), 0);
+
+  /**
+   * Levenberg-Marquardt on F: R^n -> R^m. Near a root of a square system with
+   * small damping this is plain Newton-Raphson, which is what TK!Solver used.
+   */
+  function levenbergMarquardt(F, x0, opts) {
+    const maxIter = (opts && opts.maxIter) || 200;
+    let x = x0.slice();
+    let r = F(x);
+    if (!r) return { ok: false, x, iterations: 0, reason: 'could not evaluate the model at the guess values' };
+    let cost = sumSq(r);
+    let lambda = 1e-3;
+    const n = x.length;
+    for (let it = 1; it <= maxIter; it++) {
+      if (r.length === 0 || maxAbs(r) < TOL) return { ok: true, x, iterations: it - 1, residual: maxAbs(r) };
+      // Central-difference Jacobian.
+      const J = r.map(() => new Array(n).fill(0));
+      for (let j = 0; j < n; j++) {
+        const h = 1e-6 * Math.max(1, Math.abs(x[j]));
+        const xp = x.slice(); xp[j] += h;
+        const xm = x.slice(); xm[j] -= h;
+        let rp = F(xp), rm = F(xm), denom = 2 * h;
+        if (!rp && !rm) continue;
+        if (!rp) { rp = r; denom = h; }
+        if (!rm) { rm = r; denom = h; }
+        for (let i = 0; i < r.length; i++) J[i][j] = (rp[i] - rm[i]) / denom;
+      }
+      const A = [], g = new Array(n).fill(0);
+      for (let a = 0; a < n; a++) {
+        A.push(new Array(n).fill(0));
+        for (let b = 0; b < n; b++) {
+          let s = 0;
+          for (let i = 0; i < r.length; i++) s += J[i][a] * J[i][b];
+          A[a][b] = s;
+        }
+        for (let i = 0; i < r.length; i++) g[a] += J[i][a] * r[i];
+      }
+      let accepted = false;
+      while (lambda < 1e15) {
+        const D = A.map((row, i) => row.map((v, k) => (i === k ? v + lambda * Math.max(v, 1e-12) : v)));
+        const dx = solveLinear(D, g.map((v) => -v));
+        if (dx && dx.every(Number.isFinite)) {
+          const xn = x.map((v, i) => v + dx[i]);
+          const rn = F(xn);
+          if (rn) {
+            const cn = sumSq(rn);
+            if (cn < cost) {
+              const tiny = dx.every((d, i) => Math.abs(d) <= 1e-15 * Math.max(1, Math.abs(x[i])));
+              x = xn; r = rn; cost = cn; lambda = Math.max(lambda / 5, 1e-15);
+              accepted = true;
+              if (tiny) {
+                return maxAbs(r) < CHECK_TOL
+                  ? { ok: true, x, iterations: it, residual: maxAbs(r) }
+                  : { ok: false, x, iterations: it, residual: maxAbs(r), reason: 'iteration stalled — try different guesses' };
+              }
+              break;
+            }
+          }
+        }
+        lambda *= 4;
+      }
+      if (!accepted) {
+        return maxAbs(r) < CHECK_TOL
+          ? { ok: true, x, iterations: it, residual: maxAbs(r) }
+          : { ok: false, x, iterations: it, residual: maxAbs(r), reason: 'no further progress — try different guesses' };
+      }
+    }
+    return maxAbs(r) < CHECK_TOL
+      ? { ok: true, x, iterations: maxIter, residual: maxAbs(r) }
+      : { ok: false, x, iterations: maxIter, residual: maxAbs(r), reason: 'iteration limit reached' };
+  }
+
+  // --------------------------------------------------------------- solving
+
+  const START_VALUES = [1, 10, 0.1, 3, 30, 100, 0.01, -1, 0.5, 5, 20, 50, 300, 1000, -10, 0.001];
+
+  /**
+   * Pick extra guess ("tear") variables so the direct solver can finish.
+   * Greedy: guess the unknown that appears in the most stalled rules. Ties
+   * produce alternative sets, tried in order if the first does not converge.
+   */
+  function autoTearSets(model, seed, limit) {
+    const complete = (state, picks) => {
+      let s = state;
+      const out = picks.slice();
+      while (s.stalled.length) {
+        const ranked = rankUnknowns(model, s);
+        if (!ranked.length) break;
+        out.push(ranked[0]);
+        s = structural(model, new Set([...s.known, ranked[0]]));
+      }
+      return out;
+    };
+    const firsts = rankUnknowns(model, seed);
+    const sets = [];
+    const seen = new Set();
+    for (const v of firsts) {
+      const set = complete(structural(model, new Set([...seed.known, v])), [v]);
+      const key = set.slice().sort().join('|');
+      if (!seen.has(key)) { seen.add(key); sets.push(set); }
+      if (sets.length >= limit) break;
+    }
+    return sets;
+  }
+
+  function rankUnknowns(model, s) {
+    const counts = new Map();
+    for (const idx of s.stalled) {
+      for (const v of model.rules[idx].vars) if (!s.known.has(v)) counts.set(v, (counts.get(v) || 0) + 1);
+    }
+    return model.variables.filter((v) => counts.has(v))
+      .sort((a, b) => counts.get(b) - counts.get(a) || model.variables.indexOf(a) - model.variables.indexOf(b));
+  }
+
+  /** Residual vector for the iterative solver; null when the model can't be evaluated. */
+  function makeResidualFn(model, baseEnv, baseKnown, allGuess, residualRules, hints) {
+    const run = (x) => {
+      const e = Object.assign({}, baseEnv);
+      const k = new Set(baseKnown);
+      allGuess.forEach((v, i) => { e[v] = x[i]; k.add(v); });
+      const dd = directSolve(model, e, k, hints);
+      if (dd.stalled.length) return null;
+      for (const idx of dd.failed) if (!residualRules.includes(idx)) return null;
+      const out = [];
+      for (const idx of residualRules) {
+        const rr = scaledResidual(model.rules[idx], e);
+        if (!Number.isFinite(rr)) return null;
+        out.push(rr);
+      }
+      return { out, env: e };
+    };
+    const F = (x) => { const r = run(x); return r ? r.out : null; };
+    F.envAt = (x) => { const r = run(x); return r ? r.env : null; };
+    return F;
+  }
+
+  /**
+   * Solve a model.
+   *   inputs   {name: number}   known values (calculation units)
+   *   guesses  {name: number}   starting values for the iterative solver
+   *   opts.autoGuess            pick extra guess variables automatically if needed
+   *   opts.hints {name: number} preferred values for 1-D root finding (e.g. last answer)
+   *
+   * Returns {
+   *   ok, mode: 'direct'|'iterative', values {name:number}, message,
+   *   ruleStatus [ 'ok' | 'unsatisfied' | 'unsolved' | 'error' | 'blank' ],
+   *   iterations, guessed [names], autoGuessed [names]
+   * }
+   */
+  function solve(model, inputs, guesses, opts) {
+    opts = opts || {};
+    guesses = guesses || {};
+    const hints = Object.assign({}, opts.hints || {}, guesses);
+    const env = {};
+    const known = new Set();
+    for (const [k, v] of Object.entries(inputs || {})) {
+      if (Number.isFinite(v)) { env[k] = v; known.add(k); }
+    }
+    const result = { ok: true, mode: 'direct', values: {}, message: '', iterations: 0, guessed: [], autoGuessed: [] };
+
+    const syntaxErrors = model.rules.filter((r) => !r.blank && !r.ok);
+
+    // ---- Pass 1: direct solver
+    const d = directSolve(model, env, known, hints);
+    let finalEnv = env;
+
+    if (d.stalled.length || d.failed.size) {
+      // ---- Pass 2: iterative solver
+      const baseKnown = new Set(known);
+      const baseEnv = Object.assign({}, env);
+      const guessVars = Object.keys(guesses).filter((v) => !baseKnown.has(v) && model.variables.includes(v) && Number.isFinite(guesses[v]));
+      result.guessed = guessVars;
+      const seed = structural(model, new Set([...baseKnown, ...guessVars]));
+      const tearSets = seed.stalled.length && opts.autoGuess !== false
+        ? autoTearSets(model, seed, 6)
+        : [[]];
+      let s = seed;
+      if (tearSets.length === 0) tearSets.push([]);
+
+      // Is the model determinable with the first tear set at all?
+      s = structural(model, new Set([...seed.known, ...tearSets[0]]));
+      if (s.stalled.length) {
+        const missing = new Set();
+        for (const idx of s.stalled) for (const v of model.rules[idx].vars) if (!s.known.has(v)) missing.add(v);
+        result.ok = false;
+        result.message = `Not enough information. Supply an input or a guess for: ${[...missing].join(', ')}`;
+      } else if (guessVars.length + tearSets[0].length === 0) {
+        // Direct solver failed on a rule but there is nothing to iterate on.
+        result.ok = false;
+        const bad = [...d.failed].map((i) => i + 1);
+        result.message = `Could not solve rule ${bad.join(', ')} — no real solution found`;
+      } else {
+        // Try each tear set and a handful of starting points; keep the first
+        // converged answer, else the best failure.
+        let best = null, runs = 0, under = null;
+        outer:
+        for (const auto of tearSets) {
+          const allGuess = guessVars.concat(auto);
+          const st = structural(model, new Set([...baseKnown, ...allGuess]));
+          if (st.stalled.length) continue;
+          const residualRules = st.checks.filter((idx) => model.rules[idx].vars.some((v) => !baseKnown.has(v)));
+          if (residualRules.length < allGuess.length) { under = under || allGuess; continue; }
+          const F = makeResidualFn(model, baseEnv, baseKnown, allGuess, residualRules, hints);
+          for (const startVal of START_VALUES) {
+            const x0 = allGuess.map((v, i) => (i < guessVars.length || Number.isFinite(hints[v])) && startVal === START_VALUES[0]
+              ? (Number.isFinite(guesses[v]) ? guesses[v] : Number.isFinite(hints[v]) ? hints[v] : 1)
+              : (i < guessVars.length ? guesses[v] : startVal));
+            if (!F(x0)) continue;
+            const lm = levenbergMarquardt(F, x0, opts);
+            runs++;
+            const env2 = F.envAt(lm.x);
+            const cand = { lm, env: env2, auto, allGuess, residualRules };
+            if (lm.ok) { best = cand; break outer; }
+            if (!best || (lm.residual || Infinity) < (best.lm.residual || Infinity)) best = cand;
+            if (runs >= 40) break outer;
+          }
+        }
+        result.mode = 'iterative';
+        if (!best && under) {
+          result.ok = false;
+          result.message = `Not enough information — more unknowns than equations. Supply an input for one of: ${under.join(', ')}`;
+        } else if (!best) {
+          result.ok = false;
+          result.autoGuessed = tearSets[0];
+          result.message = 'Iterative solver could not evaluate the model at any starting guess — supply better guesses';
+        } else {
+          const { lm, env: env2, auto, allGuess, residualRules } = best;
+          result.autoGuessed = auto;
+          result.iterations = lm.iterations;
+          if (env2) finalEnv = env2;
+          if (!lm.ok) {
+            result.ok = false;
+            result.message = `Iterative solver did not converge (${lm.reason}).`;
+          } else {
+            const nG = allGuess.length, nR = residualRules.length;
+            result.message = `Iterative solver converged in ${lm.iterations} iteration${lm.iterations === 1 ? '' : 's'}`;
+            if (nR > nG) result.message += ' (over-determined: least-squares fit)';
+          }
+        }
+      }
+    }
+
+    // ---- Collect values and rule status
+    for (const v of model.variables) {
+      if (Number.isFinite(finalEnv[v]) && !(v in (inputs || {}) && Number.isFinite(inputs[v]))) result.values[v] = finalEnv[v];
+    }
+    result.ruleStatus = model.rules.map((rule) => {
+      if (rule.blank) return 'blank';
+      if (!rule.ok) return 'error';
+      if (rule.vars.some((v) => !Number.isFinite(finalEnv[v]))) return 'unsolved';
+      const r = scaledResidual(rule, finalEnv);
+      return Number.isFinite(r) && Math.abs(r) < CHECK_TOL ? 'ok' : 'unsatisfied';
+    });
+    const unsat = result.ruleStatus.filter((s) => s === 'unsatisfied').length;
+    const unsolved = result.ruleStatus.filter((s) => s === 'unsolved').length;
+    if (result.ok && unsat) {
+      result.ok = false;
+      result.message = `${unsat} rule${unsat > 1 ? 's are' : ' is'} not satisfied — the inputs are inconsistent`;
+    }
+    if (result.ok && !result.message) {
+      const nOk = result.ruleStatus.filter((s) => s === 'ok').length;
+      result.message = `Direct solver: ${nOk} rule${nOk === 1 ? '' : 's'} satisfied`;
+      if (unsolved) {
+        result.ok = false;
+        result.message = `Not enough information — ${unsolved} rule${unsolved > 1 ? 's' : ''} unsolved`;
+      }
+    }
+    if (syntaxErrors.length) {
+      result.message += ` · ${syntaxErrors.length} rule${syntaxErrors.length > 1 ? 's have' : ' has'} syntax errors`;
+    }
+    return result;
+  }
+
+  /**
+   * List solving: solve once per row. listInputs maps variable -> array.
+   * Each solution seeds the next one (continuation), which helps iterative models.
+   */
+  function listSolve(model, inputs, guesses, listInputs, opts) {
+    const names = Object.keys(listInputs);
+    const n = names.reduce((m, k) => Math.max(m, listInputs[k].length), 0);
+    const rows = [];
+    let prev = {};
+    let lastGuesses = Object.assign({}, guesses);
+    for (let i = 0; i < n; i++) {
+      const inp = Object.assign({}, inputs);
+      let any = false;
+      for (const k of names) {
+        const v = listInputs[k][i];
+        if (Number.isFinite(v)) { inp[k] = v; any = true; } else { delete inp[k]; }
+      }
+      if (!any) { rows.push(null); continue; }
+      const res = solve(model, inp, lastGuesses, Object.assign({}, opts, { hints: Object.assign({}, prev) }));
+      rows.push(res);
+      if (res.ok) {
+        prev = res.values;
+        lastGuesses = {};
+        for (const g of Object.keys(guesses)) if (Number.isFinite(res.values[g])) lastGuesses[g] = res.values[g]; else lastGuesses[g] = guesses[g];
+      }
+    }
+    return rows;
+  }
+
+  // ------------------------------------------------------------------ units
+
+  /**
+   * Units sheet rows: { from, to, factor, offset }  meaning  to = from*factor + offset.
+   * A variable's display unit is looked up in "from"; the calculation is done in "to".
+   */
+  function makeUnits(rows) {
+    const map = new Map();
+    for (const r of rows || []) {
+      const from = (r.from || '').trim();
+      const factor = typeof r.factor === 'number' ? r.factor : evalConst(r.factor);
+      const offset = r.offset === '' || r.offset == null ? 0 : (typeof r.offset === 'number' ? r.offset : evalConst(r.offset));
+      if (from && Number.isFinite(factor) && factor !== 0 && Number.isFinite(offset)) {
+        map.set(from, { to: (r.to || '').trim(), factor, offset });
+      }
+    }
+    return {
+      has: (u) => map.has((u || '').trim()),
+      calcUnit: (u) => { const c = map.get((u || '').trim()); return c ? c.to : (u || ''); },
+      toCalc: (u, x) => { const c = map.get((u || '').trim()); return c ? x * c.factor + c.offset : x; },
+      fromCalc: (u, x) => { const c = map.get((u || '').trim()); return c ? (x - c.offset) / c.factor : x; },
+    };
+  }
+
+  // ------------------------------------------------------------- formatting
+
+  function formatNumber(x, digits) {
+    digits = digits || 8;
+    if (!Number.isFinite(x)) return String(x);
+    if (x === 0) return '0';
+    const ax = Math.abs(x);
+    if (ax >= 1e-4 && ax < 1e9) {
+      let s = x.toPrecision(digits);
+      if (s.includes('e')) s = String(Number(s));
+      if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+      return s;
+    }
+    let s = x.toExponential(digits - 1);
+    s = s.replace(/\.?0+e/, 'e').replace('e+', 'E').replace('e-', 'E-');
+    return s;
+  }
+
+  return {
+    tokenize, parseRule, parseExpr, compile, toText, evalConst, collectVars,
+    buildModel, solve, listSolve, makeUnits, formatNumber,
+    // exposed for tests
+    _internal: { solve1D, levenbergMarquardt, solveLinear, isolate, structural, directSolve },
+    FUNCTIONS: Object.keys(FUNCS),
+  };
+});
+
+</script>
+<script>
+/* Example models for CH!Solver. Each is a complete saved model. */
+(function (root) {
+  'use strict';
+  const range = (a, b, step) => { const out = []; for (let x = a; x <= b + 1e-9; x += step) out.push(String(+x.toFixed(10))); return out; };
+
+  const examples = [
+    {
+      id: 'triangle',
+      title: 'Right Triangle',
+      desc: 'Solve forward, then backsolve: give c and area instead of a and b.',
+      rules: [
+        '" Any variable can be the unknown',
+        'c^2 = a^2 + b^2',
+        'area = a * b / 2',
+        'theta = deg(atan(b / a))',
+        'perim = a + b + c',
+      ],
+      vars: {
+        a: { input: '3', comment: 'leg' },
+        b: { input: '4', comment: 'leg' },
+        c: { comment: 'hypotenuse' },
+        area: { comment: 'try: clear a & b, enter c=13, area=30' },
+        theta: { unit: 'deg', comment: 'angle opposite b' },
+        perim: { comment: 'perimeter' },
+      },
+    },
+    {
+      id: 'simultaneous',
+      title: 'Three Simultaneous Equations',
+      desc: 'Nonlinear system with no inputs at all; guesses on x and y.',
+      rules: [
+        'x + y + z = 6',
+        'x * y * z = 6',
+        'x^2 + y^2 + z^2 = 14',
+      ],
+      vars: {
+        x: { st: 'G', input: '0.5', comment: 'guess — try 5 for another root' },
+        y: { st: 'G', input: '1.8', comment: 'guess' },
+        z: {},
+      },
+    },
+    {
+      id: 'loan',
+      title: 'Mortgage Payment',
+      desc: 'Find the payment, or enter a payment and backsolve the interest rate.',
+      rules: [
+        'pmt = P * i / (1 - (1 + i)^-n)',
+        'i = rate / 100 / 12   " monthly rate',
+        'n = years * 12',
+        'total = pmt * n',
+        'interest = total - P',
+      ],
+      vars: {
+        P: { input: '350000', unit: '$', comment: 'principal' },
+        rate: { input: '6.75', unit: '%/yr', comment: 'move pmt to input to solve for this' },
+        years: { input: '30', unit: 'yr' },
+        pmt: { unit: '$/mo', comment: 'monthly payment' },
+        i: { comment: 'monthly rate' },
+        n: { comment: 'payments' },
+        total: { unit: '$' },
+        interest: { unit: '$', comment: 'total interest paid' },
+      },
+    },
+    {
+      id: 'ladders',
+      title: 'Crossed Ladders',
+      desc: 'A classic puzzle: two ladders cross 10 ft up. How wide is the alley?',
+      rules: [
+        '" Ladders of length L1 and L2 lean across an alley of width w',
+        'h1 = sqrt(L1^2 - w^2)',
+        'h2 = sqrt(L2^2 - w^2)',
+        '1 / c = 1 / h1 + 1 / h2   " crossing height',
+      ],
+      vars: {
+        L1: { input: '30', unit: 'ft' },
+        L2: { input: '20', unit: 'ft' },
+        c: { input: '10', unit: 'ft', comment: 'height where they cross' },
+        w: { st: 'G', input: '10', unit: 'ft', comment: 'alley width (guess)' },
+        h1: { unit: 'ft', comment: 'top of ladder 1' },
+        h2: { unit: 'ft', comment: 'top of ladder 2' },
+      },
+    },
+    {
+      id: 'projectile',
+      title: 'Projectile Range',
+      desc: 'List solve over launch angle, with mph and ft converted by the Units sheet.',
+      rules: [
+        'vx = v0 * cos(rad(theta))',
+        'vy = v0 * sin(rad(theta))',
+        't = 2 * vy / g',
+        'range = vx * t',
+        'h_max = vy^2 / (2 * g)',
+      ],
+      vars: {
+        v0: { input: '60', unit: 'mph', comment: 'launch speed' },
+        theta: { st: 'L', input: '45', unit: 'deg', comment: 'launch angle (list)' },
+        g: { input: '9.80665', unit: 'm/s^2' },
+        vx: { unit: 'm/s' }, vy: { unit: 'm/s' },
+        t: { unit: 's', comment: 'time of flight' },
+        range: { st: 'L', unit: 'ft' },
+        h_max: { st: 'L', unit: 'ft', comment: 'peak height' },
+      },
+      units: [
+        { from: 'mph', to: 'm/s', factor: '0.44704', offset: '' },
+        { from: 'ft', to: 'm', factor: '0.3048', offset: '' },
+      ],
+      lists: { theta: { values: range(5, 85, 5), computed: false } },
+      plot: { x: 'theta', y: ['range', 'h_max'] },
+      solveList: true,
+    },
+    {
+      id: 'colebrook',
+      title: 'Pipe Friction (Colebrook)',
+      desc: 'Implicit friction factor: f appears on both sides. Water in a 4 in pipe.',
+      rules: [
+        '1 / sqrt(f) = -2 * log(eps / D / 3.7 + 2.51 / (Re * sqrt(f)))',
+        'Re = rho * V * D / mu',
+        'dP = f * (L / D) * rho * V^2 / 2',
+        'Q = V * pi * D^2 / 4',
+      ],
+      vars: {
+        rho: { input: '998', unit: 'kg/m^3', comment: 'water, 20 °C' },
+        mu: { input: '0.001002', unit: 'Pa*s' },
+        D: { input: '4', unit: 'in' },
+        eps: { input: '0.0018', unit: 'in', comment: 'commercial steel' },
+        L: { input: '300', unit: 'ft' },
+        Q: { input: '250', unit: 'gpm', comment: 'try making dP the input' },
+        V: { unit: 'm/s' },
+        Re: { comment: 'Reynolds number' },
+        f: { comment: 'Darcy friction factor' },
+        dP: { unit: 'psi', comment: 'pressure drop' },
+      },
+      units: [
+        { from: 'in', to: 'm', factor: '0.0254', offset: '' },
+        { from: 'ft', to: 'm', factor: '0.3048', offset: '' },
+        { from: 'gpm', to: 'm^3/s', factor: '6.30902e-5', offset: '' },
+        { from: 'psi', to: 'Pa', factor: '6894.757', offset: '' },
+      ],
+    },
+    {
+      id: 'gas',
+      title: 'Ideal Gas',
+      desc: 'PV = nRT with °C, liters and atmospheres converted to SI.',
+      rules: ['P * V = n * R * T'],
+      vars: {
+        P: { input: '1', unit: 'atm' },
+        V: { unit: 'L' },
+        n: { input: '1', unit: 'mol' },
+        R: { input: '8.314462618', unit: 'J/mol/K' },
+        T: { input: '0', unit: 'degC' },
+      },
+      units: [
+        { from: 'atm', to: 'Pa', factor: '101325', offset: '' },
+        { from: 'L', to: 'm^3', factor: '0.001', offset: '' },
+        { from: 'degC', to: 'K', factor: '1', offset: '273.15' },
+        { from: 'degF', to: 'K', factor: '5/9', offset: '255.3722222' },
+      ],
+    },
+    {
+      id: 'blank',
+      title: 'Blank Model',
+      desc: 'An empty Rule Sheet.',
+      rules: [''],
+      vars: {},
+    },
+  ];
+
+  root.CHExamples = examples;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/* CH!Solver — user interface. Depends on CHEngine (engine.js) and CHExamples. */
+(function () {
+  'use strict';
+  const E = window.CHEngine;
+  const EXAMPLES = window.CHExamples || [];
+  const STORE_KEY = 'ch-solver:model:v1';
+  const PREF_KEY = 'ch-solver:prefs:v1';
+
+  const $ = (sel) => document.querySelector(sel);
+  const fmt = (x) => E.formatNumber(x, 8);
+  const isFiniteNum = (x) => typeof x === 'number' && Number.isFinite(x);
+
+  // ------------------------------------------------------------------ state
+
+  let state = blankState();
+  let model = E.buildModel(state.rules);
+  let outputs = {};          // name -> number, display units
+  let ruleStatus = [];
+  let shownVars = [];        // variable order currently rendered
+  let prefs = { autoGuess: true, autoSolve: false, tab: 'plot' };
+
+  function blankState() {
+    return { title: 'Untitled', rules: [''], vars: {}, units: [], lists: {}, plot: { x: '', y: [] } };
+  }
+  function vdata(name) {
+    if (!state.vars[name]) state.vars[name] = { st: '', input: '', unit: '', comment: '' };
+    const d = state.vars[name];
+    d.st = d.st || ''; d.input = d.input == null ? '' : String(d.input); d.unit = d.unit || ''; d.comment = d.comment || '';
+    return d;
+  }
+  function normalizeState(s) {
+    const out = blankState();
+    if (!s || typeof s !== 'object') return out;
+    out.title = typeof s.title === 'string' ? s.title : 'Untitled';
+    out.rules = Array.isArray(s.rules) && s.rules.length ? s.rules.map(String) : [''];
+    out.vars = {};
+    for (const [k, v] of Object.entries(s.vars || {})) {
+      out.vars[k] = { st: String(v.st || '').toUpperCase(), input: v.input == null ? '' : String(v.input), unit: String(v.unit || ''), comment: String(v.comment || '') };
+    }
+    out.units = Array.isArray(s.units) ? s.units.map((u) => ({ from: String(u.from || ''), to: String(u.to || ''), factor: String(u.factor == null ? '' : u.factor), offset: String(u.offset == null ? '' : u.offset) })) : [];
+    out.lists = {};
+    for (const [k, l] of Object.entries(s.lists || {})) {
+      const values = Array.isArray(l) ? l : (l && Array.isArray(l.values) ? l.values : []);
+      out.lists[k] = { values: values.map((x) => (x == null ? '' : String(x))), computed: !!(l && l.computed) };
+    }
+    out.plot = { x: (s.plot && s.plot.x) || '', y: (s.plot && Array.isArray(s.plot.y)) ? s.plot.y.slice() : [] };
+    if (out.rules[out.rules.length - 1].trim() !== '') out.rules.push('');
+    return out;
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (_) { /* storage unavailable */ }
+  }
+  function savePrefs() {
+    try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (_) { /* storage unavailable */ }
+  }
+  function loadSaved() {
+    try {
+      const p = JSON.parse(localStorage.getItem(PREF_KEY) || 'null');
+      if (p) prefs = Object.assign(prefs, p);
+    } catch (_) { /* ignore */ }
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) return normalizeState(JSON.parse(raw));
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+
+  // ------------------------------------------------------------------ helpers
+
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return el;
+  }
+
+  function setStatus(msg, kind, tags) {
+    const el = $('#status-msg');
+    el.className = 'status-msg' + (kind ? ' ' + kind : '');
+    el.textContent = msg;
+    for (const t of tags || []) el.append(h('span', { class: 'tag', text: t }));
+  }
+
+  function units() { return E.makeUnits(state.units); }
+
+  // ------------------------------------------------------------------ rules
+
+  function rebuildModel() {
+    model = E.buildModel(state.rules);
+    ruleStatus = model.rules.map((r) => (r.blank ? 'blank' : r.ok ? '' : 'error'));
+  }
+
+  function renderRules(focusIndex, caret) {
+    const body = $('#rule-body');
+    body.textContent = '';
+    state.rules.forEach((src, i) => {
+      const input = h('input', {
+        id: `rule-${i}`, value: src, spellcheck: 'false', autocomplete: 'off', 'aria-label': `Rule ${i + 1}`,
+        placeholder: i === state.rules.length - 1 ? (i === 0 ? 'e.g.  c^2 = a^2 + b^2' : 'new rule…') : '',
+        'data-row': i,
+      });
+      input.addEventListener('input', () => onRuleInput(i, input));
+      input.addEventListener('keydown', (ev) => onRuleKey(ev, i, input));
+      input.addEventListener('paste', (ev) => onRulePaste(ev, i, input));
+      body.append(h('tr', { id: `rule-row-${i}` }, h('td', { class: 'st', id: `rule-st-${i}` }), h('td', {}, input)));
+    });
+    paintRuleStatus();
+    if (focusIndex != null) {
+      const el = $(`#rule-${focusIndex}`);
+      if (el) { el.focus(); const c = caret == null ? el.value.length : caret; el.setSelectionRange(c, c); }
+    }
+  }
+
+  function paintRuleStatus() {
+    state.rules.forEach((_, i) => {
+      const td = $(`#rule-st-${i}`);
+      const tr = $(`#rule-row-${i}`);
+      if (!td) return;
+      const st = ruleStatus[i] || '';
+      const rule = model.rules[i];
+      td.className = 'st ' + st;
+      td.textContent = st === 'unsatisfied' ? '*' : st === 'error' ? '!' : st === 'unsolved' ? '·' : '';
+      td.title = st === 'error' && rule ? `Syntax error: ${rule.error}` : st === 'unsatisfied' ? 'Rule not satisfied' : st === 'unsolved' ? 'Not solved yet' : '';
+      tr.classList.toggle('error', st === 'error');
+    });
+  }
+
+  function onRuleInput(i, input) {
+    state.rules[i] = input.value;
+    let structural = false;
+    if (i === state.rules.length - 1 && input.value.trim() !== '') { state.rules.push(''); structural = true; }
+    rebuildModel();
+    if (structural) renderRules(i, input.selectionStart);
+    else paintRuleStatus();
+    syncVariables();
+    save();
+    if (prefs.autoSolve) solveNow(true);
+  }
+
+  function onRuleKey(ev, i, input) {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const pos = input.selectionStart;
+      const before = input.value.slice(0, pos), after = input.value.slice(pos);
+      state.rules[i] = before;
+      state.rules.splice(i + 1, 0, after);
+      rebuildModel(); renderRules(i + 1, 0); syncVariables(); save();
+    } else if (ev.key === 'Backspace' && input.selectionStart === 0 && input.selectionEnd === 0 && i > 0) {
+      ev.preventDefault();
+      const prevLen = state.rules[i - 1].length;
+      state.rules[i - 1] += state.rules[i];
+      state.rules.splice(i, 1);
+      if (!state.rules.length || state.rules[state.rules.length - 1].trim() !== '') state.rules.push('');
+      rebuildModel(); renderRules(i - 1, prevLen); syncVariables(); save();
+    } else if (ev.key === 'ArrowUp' && i > 0) {
+      ev.preventDefault(); $(`#rule-${i - 1}`).focus();
+    } else if (ev.key === 'ArrowDown' && i < state.rules.length - 1) {
+      ev.preventDefault(); $(`#rule-${i + 1}`).focus();
+    }
+  }
+
+  function onRulePaste(ev, i, input) {
+    const text = (ev.clipboardData || window.clipboardData).getData('text');
+    if (!text || !/\n/.test(text)) return;
+    ev.preventDefault();
+    const lines = text.replace(/\r/g, '').split('\n');
+    const pos = input.selectionStart, end = input.selectionEnd;
+    const before = input.value.slice(0, pos), after = input.value.slice(end);
+    lines[0] = before + lines[0];
+    const lastLen = lines[lines.length - 1].length;
+    lines[lines.length - 1] += after;
+    state.rules.splice(i, 1, ...lines);
+    if (state.rules[state.rules.length - 1].trim() !== '') state.rules.push('');
+    rebuildModel(); renderRules(i + lines.length - 1, lastLen); syncVariables(); save();
+  }
+
+  // ------------------------------------------------------------------ variables
+
+  function syncVariables() {
+    const names = model.variables;
+    if (names.join('\u0000') !== shownVars.join('\u0000')) renderVariables();
+  }
+
+  const VAR_COLS = ['st', 'in', 'unit', 'com'];
+
+  function renderVariables() {
+    const active = document.activeElement && document.activeElement.id;
+    const sel = active && document.activeElement.selectionStart;
+    shownVars = model.variables.slice();
+    const body = $('#var-body');
+    body.textContent = '';
+    if (!shownVars.length) {
+      body.append(h('tr', { class: 'empty' }, h('td', { colspan: 6, text: 'Variables appear here as you type rules.' })));
+    }
+    shownVars.forEach((name, row) => {
+      const d = vdata(name);
+      const cell = (col, value, extra) => {
+        const input = h('input', Object.assign({
+          id: `var-${col}-${name}`, value, spellcheck: 'false', autocomplete: 'off', 'data-row': row, 'data-col': col,
+          'aria-label': `${name} ${({ st: 'status', in: 'input', unit: 'unit', com: 'comment' })[col]}`,
+        }, extra || {}));
+        input.addEventListener('input', () => onVarInput(name, col, input));
+        input.addEventListener('keydown', (ev) => onGridKey(ev, '#var-body', col, row, shownVars.length, (r, c) => `#var-${c}-${shownVars[r]}`));
+        return input;
+      };
+      const out = h('td', { class: 'out cell', id: `var-out-${name}`, title: 'Double-click to move to Input' });
+      out.addEventListener('dblclick', () => moveOutputToInput(name));
+      const tr = h('tr', { id: `var-row-${name}` },
+        h('td', { class: 'st' }, cell('st', d.st, { maxlength: 1, inputmode: 'text' })),
+        h('td', { class: 'in' }, cell('in', d.input, { inputmode: 'decimal' })),
+        h('td', { class: 'name cell', text: name }),
+        out,
+        h('td', { class: 'unit' }, cell('unit', d.unit)),
+        h('td', { class: 'com' }, cell('com', d.comment)),
+      );
+      body.append(tr);
+    });
+    paintOutputs(false);
+    if (active) {
+      const el = document.getElementById(active);
+      if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (_) { /* not text */ } }
+    }
+    renderLists();
+    renderPlotControls();
+  }
+
+  function paintOutputs(fresh) {
+    for (const name of shownVars) {
+      const td = $(`#var-out-${name}`);
+      if (!td) continue;
+      const v = outputs[name];
+      const has = isFiniteNum(v);
+      const text = has ? fmt(v) : '';
+      if (fresh && has && td.textContent !== text) {
+        td.classList.remove('fresh'); void td.offsetWidth; td.classList.add('fresh');
+      }
+      td.textContent = text;
+      td.classList.toggle('has', has);
+      const d = vdata(name);
+      const row = $(`#var-row-${name}`);
+      row.classList.toggle('is-guess', d.st === 'G');
+    }
+  }
+
+  function onVarInput(name, col, input) {
+    const d = vdata(name);
+    if (col === 'st') {
+      const v = input.value.toUpperCase();
+      if (v !== '' && v !== 'G' && v !== 'L') { input.value = d.st; setStatus('Status can be blank, G (guess) or L (list).', 'err'); return; }
+      input.value = v; d.st = v;
+      paintOutputs(false); renderLists(); renderPlotControls();
+    } else if (col === 'in') {
+      d.input = input.value;
+      if (input.value.trim() !== '' && d.st !== 'G') delete outputs[name];
+    } else if (col === 'unit') d.unit = input.value;
+    else if (col === 'com') d.comment = input.value;
+    save();
+    if (prefs.autoSolve && (col === 'in' || col === 'st' || col === 'unit')) solveNow(true);
+  }
+
+  function onGridKey(ev, scope, col, row, nRows, idFor) {
+    let target = null;
+    if (ev.key === 'ArrowDown' || ev.key === 'Enter') target = row + 1;
+    else if (ev.key === 'ArrowUp') target = row - 1;
+    if (target == null) return;
+    if (target < 0 || target >= nRows) { if (ev.key === 'Enter') ev.preventDefault(); return; }
+    ev.preventDefault();
+    const el = document.querySelector(idFor(target, col));
+    if (el) { el.focus(); el.select(); }
+  }
+
+  function moveOutputToInput(name) {
+    const v = outputs[name];
+    if (!isFiniteNum(v)) return;
+    const d = vdata(name);
+    d.input = fmt(v);
+    if (d.st === 'L') d.st = '';
+    delete outputs[name];
+    const inp = $(`#var-in-${name}`); if (inp) inp.value = d.input;
+    const st = $(`#var-st-${name}`); if (st) st.value = d.st;
+    paintOutputs(false); save();
+    setStatus(`${name} moved to Input. Clear another input and press ! to solve backwards.`, '');
+  }
+
+  // ------------------------------------------------------------------ solving
+
+  function gatherInputs(excludeVars) {
+    const U = units();
+    const inputs = {}, guesses = {}, bad = [];
+    for (const v of model.variables) {
+      if (excludeVars && excludeVars.has(v)) continue;
+      const d = vdata(v);
+      if (d.input.trim() === '') continue;
+      const x = E.evalConst(d.input);
+      if (!Number.isFinite(x)) { bad.push(v); continue; }
+      const c = U.toCalc(d.unit, x);
+      if (d.st === 'G') guesses[v] = c; else inputs[v] = c;
+    }
+    return { inputs, guesses, bad, U };
+  }
+
+  function hintsFromOutputs(U) {
+    const hints = {};
+    for (const [k, v] of Object.entries(outputs)) if (isFiniteNum(v)) hints[k] = U.toCalc(vdata(k).unit, v);
+    return hints;
+  }
+
+  function solveNow(quiet) {
+    if (!quiet) flash('#solve-btn');
+    const { inputs, guesses, bad, U } = gatherInputs();
+    if (bad.length) { setStatus(`Input for ${bad.join(', ')} is not a number.`, 'err'); return; }
+    if (!model.rules.some((r) => r.ok)) { setStatus('Type a rule first, for example  c^2 = a^2 + b^2', 'err'); return; }
+    const t0 = performance.now();
+    const res = E.solve(model, inputs, guesses, { autoGuess: prefs.autoGuess, hints: hintsFromOutputs(U) });
+    const ms = performance.now() - t0;
+    outputs = {};
+    for (const [k, v] of Object.entries(res.values)) {
+      if (k in inputs) continue;
+      outputs[k] = U.fromCalc(vdata(k).unit, v);
+    }
+    ruleStatus = res.ruleStatus;
+    paintRuleStatus(); paintOutputs(true);
+    const tags = [];
+    if (res.autoGuessed.length) tags.push(`auto-guessed ${res.autoGuessed.join(', ')}`);
+    if (ms > 30) tags.push(`${Math.round(ms)} ms`);
+    setStatus(res.message, res.ok ? 'ok' : 'err', tags);
+  }
+
+  function listSolveNow() {
+    flash('#list-solve-btn');
+    const lvars = model.variables.filter((v) => vdata(v).st === 'L');
+    const inputLists = lvars.filter((v) => {
+      const l = state.lists[v];
+      return l && !l.computed && l.values.some((x) => Number.isFinite(E.evalConst(x)));
+    });
+    if (!inputLists.length) {
+      setStatus('List Solve needs an input list: set a variable’s St to L, then enter values on the Lists tab.', 'err');
+      selectTab('lists');
+      return;
+    }
+    const { inputs, guesses, bad, U } = gatherInputs(new Set(inputLists));
+    if (bad.length) { setStatus(`Input for ${bad.join(', ')} is not a number.`, 'err'); return; }
+    const listInputs = {};
+    for (const v of inputLists) listInputs[v] = state.lists[v].values.map((x) => { const n = E.evalConst(x); return Number.isFinite(n) ? U.toCalc(vdata(v).unit, n) : NaN; });
+    const outLists = lvars.filter((v) => !inputLists.includes(v));
+    for (const v of outLists) delete inputs[v];
+    const rows = E.listSolve(model, inputs, guesses, listInputs, { autoGuess: prefs.autoGuess });
+    let okRows = 0, total = 0, firstErr = '';
+    for (const v of outLists) state.lists[v] = { values: [], computed: true };
+    rows.forEach((r, i) => {
+      if (!r) { outLists.forEach((v) => { state.lists[v].values[i] = ''; }); return; }
+      total++;
+      if (r.ok) okRows++; else if (!firstErr) firstErr = `row ${i + 1}: ${r.message}`;
+      for (const v of outLists) {
+        const x = r.ok ? r.values[v] : NaN;
+        state.lists[v].values[i] = Number.isFinite(x) ? E.formatNumber(U.fromCalc(vdata(v).unit, x), 10) : '';
+      }
+    });
+    // The Variable Sheet keeps showing the answer for the current inputs.
+    solveNow(true);
+    if (!state.plot.x || !lvars.includes(state.plot.x)) state.plot.x = inputLists[0];
+    if (!state.plot.y.some((y) => outLists.includes(y))) state.plot.y = outLists.slice(0, 3);
+    save();
+    renderLists(); renderPlotControls(); drawPlot();
+    if (prefs.tab !== 'lists') selectTab('plot');
+    const msg = `List Solve: ${okRows} of ${total} rows solved` + (outLists.length ? ` → ${outLists.join(', ')}` : ' (no output lists — set St to L on the variables you want to collect)');
+    setStatus(okRows === total ? msg : `${msg}. First problem, ${firstErr}`, okRows === total && outLists.length ? 'ok' : 'err');
+  }
+
+  function flash(sel) {
+    const b = $(sel); if (!b) return;
+    b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 120);
+  }
+
+  // ------------------------------------------------------------------ lists
+
+  function listNames() {
+    const names = model.variables.filter((v) => vdata(v).st === 'L');
+    return names;
+  }
+
+  function renderLists() {
+    const names = listNames();
+    const table = $('#list-table');
+    table.textContent = '';
+    const fillSel = $('#fill-list');
+    const prevFill = fillSel.value;
+    fillSel.textContent = '';
+    names.forEach((n) => fillSel.append(h('option', { value: n, text: n })));
+    if (names.includes(prevFill)) fillSel.value = prevFill;
+    if (!names.length) {
+      table.append(h('tbody', {}, h('tr', { class: 'empty' }, h('td', { text: 'No lists yet. Set a variable’s St to L.' }))));
+      return;
+    }
+    for (const n of names) if (!state.lists[n]) state.lists[n] = { values: [], computed: false };
+    const len = Math.max(...names.map((n) => state.lists[n].values.length)) + 1;
+    const head = h('tr', {}, h('th', { text: '#' }), names.map((n) => {
+      const l = state.lists[n];
+      return h('th', {}, n, h('small', { text: l.computed ? 'out' : (l.values.some((x) => x !== '') ? 'in' : '') }),
+        h('button', { class: 'clear-list', type: 'button', title: `Clear list ${n}`, 'aria-label': `Clear list ${n}`, onclick: () => { state.lists[n] = { values: [], computed: false }; save(); renderLists(); drawPlot(); } }, '×'));
+    }));
+    const body = h('tbody', {});
+    for (let i = 0; i < len; i++) {
+      body.append(h('tr', {}, h('td', { class: 'idx', text: i + 1 }), names.map((n, c) => {
+        const l = state.lists[n];
+        const input = h('input', { id: `list-${n}-${i}`, value: l.values[i] || '', inputmode: 'decimal', autocomplete: 'off', 'aria-label': `${n} row ${i + 1}` });
+        input.addEventListener('change', () => {
+          const L = state.lists[n];
+          L.values[i] = input.value.trim();
+          L.computed = false;
+          while (L.values.length && L.values[L.values.length - 1] === '') L.values.pop();
+          save(); renderLists(); drawPlot();
+          const next = $(`#list-${n}-${i + 1}`); if (next) next.focus();
+        });
+        input.addEventListener('keydown', (ev) => onGridKey(ev, '#list-table', c, i, len, (r) => `#list-${n}-${r}`));
+        return h('td', { class: l.computed ? 'computed' : '' }, input);
+      })));
+    }
+    table.append(h('thead', {}, head), body);
+  }
+
+  function onFill(ev) {
+    ev.preventDefault();
+    const n = $('#fill-list').value;
+    const a = E.evalConst($('#fill-from').value), b = E.evalConst($('#fill-to').value);
+    const steps = Math.round(E.evalConst($('#fill-n').value));
+    if (!n) { setStatus('Set a variable’s St to L first, then fill its list.', 'err'); return; }
+    if (![a, b].every(Number.isFinite) || !(steps >= 1 && steps <= 10000)) { setStatus('Fill needs numbers for from and to, and 1 to 10000 steps.', 'err'); return; }
+    const values = [];
+    for (let i = 0; i <= steps; i++) values.push(E.formatNumber(a + (b - a) * i / steps, 10));
+    state.lists[n] = { values, computed: false };
+    save(); renderLists(); drawPlot();
+    setStatus(`List ${n} filled with ${values.length} values. Choose List Solve to compute the others.`, 'ok');
+  }
+
+  // ------------------------------------------------------------------ plot
+
+  function renderPlotControls() {
+    const names = listNames();
+    const sx = $('#plot-x');
+    sx.textContent = '';
+    names.forEach((n) => sx.append(h('option', { value: n, text: n })));
+    if (!names.includes(state.plot.x)) state.plot.x = names[0] || '';
+    sx.value = state.plot.x;
+    const py = $('#plot-y');
+    py.textContent = '';
+    names.filter((n) => n !== state.plot.x).forEach((n) => {
+      const cb = h('input', { type: 'checkbox', id: `plot-y-${n}`, value: n });
+      cb.checked = state.plot.y.includes(n);
+      cb.addEventListener('change', () => {
+        state.plot.y = names.filter((m) => m !== state.plot.x && ($(`#plot-y-${m}`) || {}).checked);
+        save(); drawPlot();
+      });
+      py.append(h('label', { for: `plot-y-${n}` }, cb, n));
+    });
+    drawPlot();
+  }
+
+  function niceTicks(lo, hi, n) {
+    if (!(hi > lo)) { const d = Math.abs(lo) * 0.1 || 1; lo -= d; hi += d; }
+    const span = hi - lo;
+    const raw = span / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= n) || 10 * mag;
+    const start = Math.floor(lo / step) * step, end = Math.ceil(hi / step) * step;
+    const ticks = [];
+    for (let t = start; t <= end + step * 1e-9; t += step) ticks.push(Math.abs(t) < step * 1e-9 ? 0 : t);
+    return { lo: start, hi: end, ticks, step };
+  }
+
+  function drawPlot() {
+    const canvas = $('#plot-canvas');
+    if (!canvas || $('#pane-plot').hidden) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const W = Math.max(200, rect.width), H = Math.max(150, rect.height);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cs = getComputedStyle(document.documentElement);
+    const ink = cs.getPropertyValue('--ink').trim() || '#000';
+    const paper = cs.getPropertyValue('--paper').trim() || '#fff';
+    const dim = cs.getPropertyValue('--dim').trim() || '#666';
+    const grid = cs.getPropertyValue('--rule').trim() || '#ccc';
+    const dataFont = cs.getPropertyValue('--font-data').trim();
+    ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
+
+    const note = $('#plot-note');
+    document.querySelector('.plot-controls').hidden = listNames().length === 0;
+    const xName = state.plot.x;
+    const series = state.plot.y.filter((y) => y !== xName && state.lists[y]);
+    const toNum = (s) => { const n = E.evalConst(s); return Number.isFinite(n) ? n : NaN; };
+    const X = xName && state.lists[xName] ? state.lists[xName].values.map(toNum) : [];
+    const data = series.map((name) => ({ name, pts: (state.lists[name].values || []).map((s, i) => [X[i], toNum(s)]).filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b)) }))
+      .filter((s) => s.pts.length);
+
+    ctx.font = `12px ${dataFont}`;
+    if (!data.length) {
+      ctx.fillStyle = dim; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(listNames().length ? 'Choose List Solve to fill the lists, then pick a Y series.' : 'No lists to plot yet.', W / 2, H / 2);
+      note.textContent = 'Try Examples → Projectile Range for a ready-made list solve.';
+      return;
+    }
+    note.textContent = `${data.reduce((s, d) => s + d.pts.length, 0)} points · ${data.map((d) => d.name).join(', ')} vs ${xName}`;
+
+    const allX = data.flatMap((d) => d.pts.map((p) => p[0]));
+    const allY = data.flatMap((d) => d.pts.map((p) => p[1]));
+    const tx = niceTicks(Math.min(...allX), Math.max(...allX), Math.max(3, Math.floor(W / 90)));
+    const ty = niceTicks(Math.min(0, Math.min(...allY)) === 0 && Math.min(...allY) >= 0 && Math.min(...allY) < Math.max(...allY) * 0.25 ? 0 : Math.min(...allY), Math.max(...allY), Math.max(3, Math.floor(H / 60)));
+    const yLabels = ty.ticks.map((t) => fmtTick(t, ty.step));
+    const padL = 14 + Math.max(...yLabels.map((s) => ctx.measureText(s).width)), padR = 16, padT = 30, padB = 38;
+    const px = (x) => padL + (x - tx.lo) / (tx.hi - tx.lo) * (W - padL - padR);
+    const py = (y) => H - padB - (y - ty.lo) / (ty.hi - ty.lo) * (H - padT - padB);
+
+    // grid + ticks
+    ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.setLineDash([1, 3]);
+    ctx.fillStyle = ink; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+    ty.ticks.forEach((t, i) => {
+      const y = Math.round(py(t)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      ctx.fillText(yLabels[i], padL - 6, y);
+    });
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    tx.ticks.forEach((t) => {
+      const x = Math.round(px(t)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H - padB); ctx.stroke();
+      ctx.fillText(fmtTick(t, tx.step), x, H - padB + 6);
+    });
+    ctx.setLineDash([]);
+    ctx.strokeStyle = ink; ctx.strokeRect(Math.round(padL) + 0.5, padT + 0.5, Math.round(W - padL - padR), Math.round(H - padT - padB));
+    const xUnit = vdata(xName).unit;
+    ctx.fillText(xName + (xUnit ? ` (${xUnit})` : ''), (padL + W - padR) / 2, H - 16);
+
+    // series: 1-bit styles — solid/squares, dashed/circles, dotted/triangles
+    const styles = [[[], 'square'], [[6, 4], 'circle'], [[2, 3], 'triangle'], [[10, 3, 2, 3], 'diamond']];
+    data.forEach((s, k) => {
+      const [dash, marker] = styles[k % styles.length];
+      const pts = s.pts.slice().sort((a, b) => a[0] - b[0]);
+      ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.setLineDash(dash);
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(px(x), py(y)) : ctx.moveTo(px(x), py(y))));
+      ctx.stroke(); ctx.setLineDash([]);
+      if (pts.length <= 60) pts.forEach(([x, y]) => drawMarker(ctx, marker, px(x), py(y), ink, paper, k === 0));
+      // legend
+      const lx = padL + 8 + k * 130, ly = 12;
+      ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); ctx.setLineDash([]);
+      drawMarker(ctx, marker, lx + 14, ly, ink, paper, k === 0);
+      ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      const u = vdata(s.name).unit;
+      ctx.fillText(s.name + (u ? ` (${u})` : ''), lx + 34, ly);
+    });
+  }
+
+  function drawMarker(ctx, kind, x, y, ink, paper, filled) {
+    const r = 3.2;
+    ctx.beginPath();
+    if (kind === 'square') ctx.rect(x - r, y - r, 2 * r, 2 * r);
+    else if (kind === 'circle') ctx.arc(x, y, r, 0, Math.PI * 2);
+    else if (kind === 'triangle') { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r + 1, y + r); ctx.lineTo(x - r - 1, y + r); ctx.closePath(); }
+    else { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r + 1, y); ctx.lineTo(x, y + r + 1); ctx.lineTo(x - r - 1, y); ctx.closePath(); }
+    ctx.fillStyle = filled ? ink : paper; ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.stroke();
+  }
+
+  function fmtTick(t, step) {
+    if (Math.abs(t) >= 1e6 || (Math.abs(t) < 1e-3 && t !== 0)) return E.formatNumber(t, 3);
+    const dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    return t.toFixed(Math.min(dec, 6));
+  }
+
+  // ------------------------------------------------------------------ units sheet
+
+  function renderUnits() {
+    const body = $('#unit-body');
+    body.textContent = '';
+    const rows = state.units.concat([{ from: '', to: '', factor: '', offset: '' }]);
+    const cols = ['from', 'to', 'factor', 'offset'];
+    rows.forEach((u, i) => {
+      body.append(h('tr', {}, cols.map((c, ci) => {
+        const input = h('input', {
+          id: `unit-${c}-${i}`, value: u[c] || '', autocomplete: 'off', spellcheck: 'false',
+          placeholder: i === rows.length - 1 ? ({ from: 'e.g. ft', to: 'm', factor: '0.3048', offset: '0' })[c] : '',
+          'aria-label': `Unit row ${i + 1} ${c}`,
+        });
+        input.addEventListener('change', () => {
+          if (i === state.units.length) state.units.push({ from: '', to: '', factor: '', offset: '' });
+          state.units[i][c] = input.value.trim();
+          state.units = state.units.filter((r) => r.from || r.to || r.factor || r.offset);
+          save(); renderUnits();
+          const next = $(`#unit-${cols[ci + 1] || 'from'}-${ci === 3 ? i + 1 : i}`); if (next) next.focus();
+        });
+        input.addEventListener('keydown', (ev) => onGridKey(ev, '#unit-body', c, i, rows.length, (r, cc) => `#unit-${cc}-${r}`));
+        return h('td', {}, input);
+      })));
+    });
+  }
+
+  // ------------------------------------------------------------------ tabs, menus, dialogs
+
+  function selectTab(tab) {
+    prefs.tab = tab; savePrefs();
+    document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.dataset.pane !== tab; });
+    $('#sub-title').textContent = ({ plot: 'Plot Sheet', lists: 'List Sheet', units: 'Units Sheet', guide: 'Quick Guide' })[tab];
+    if (tab === 'plot') drawPlot();
+  }
+
+  function closeMenus() {
+    document.querySelectorAll('.menu.open').forEach((m) => { m.classList.remove('open'); m.querySelector('.menu-title').setAttribute('aria-expanded', 'false'); });
+  }
+  function setupMenus() {
+    const panel = $('#examples-panel');
+    EXAMPLES.forEach((ex) => panel.append(h('button', { role: 'menuitem', 'data-cmd': `example:${ex.id}` }, h('span', { text: ex.title }), h('span', { class: 'ex-desc', text: ex.desc }))));
+    document.querySelectorAll('.menu').forEach((menu) => {
+      const title = menu.querySelector('.menu-title');
+      title.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const open = menu.classList.contains('open');
+        closeMenus();
+        if (!open) { menu.classList.add('open'); title.setAttribute('aria-expanded', 'true'); }
+      });
+      title.addEventListener('mouseenter', () => {
+        if (document.querySelector('.menu.open') && !menu.classList.contains('open')) { closeMenus(); menu.classList.add('open'); title.setAttribute('aria-expanded', 'true'); }
+      });
+    });
+    document.addEventListener('click', (ev) => {
+      const item = ev.target.closest('[data-cmd]');
+      if (item) { closeMenus(); command(item.dataset.cmd); return; }
+      if (!ev.target.closest('.menu')) closeMenus();
+    });
+    paintOptions();
+  }
+  function paintOptions() {
+    $('#opt-autoguess').setAttribute('aria-checked', String(!!prefs.autoGuess));
+    $('#opt-autosolve').setAttribute('aria-checked', String(!!prefs.autoSolve));
+  }
+
+  function dialog(title, body, actions) {
+    $('#dialog-title').textContent = title;
+    const b = $('#dialog-body'); b.textContent = ''; b.append(...[].concat(body));
+    const a = $('#dialog-actions'); a.textContent = '';
+    (actions || [{ label: 'OK', default: true }]).forEach((act) => {
+      a.append(h('button', { class: act.default ? 'default' : '', type: 'button', onclick: () => { if (act.run && act.run() === false) return; closeDialog(); } }, act.label));
+    });
+    $('#dialog').hidden = false;
+    const first = b.querySelector('textarea') || a.querySelector('.default');
+    if (first) first.focus();
+  }
+  function closeDialog() { $('#dialog').hidden = true; }
+
+  function about() {
+    dialog('About CH!Solver', [
+      h('div', { class: 'about-logo', text: 'CH!Solver' }),
+      h('p', {}, 'A declarative equation solver for the browser, after TK!Solver (Software Arts, 1982), the program that let engineers type equations in any order and solve them for whatever was unknown.'),
+      h('p', {}, 'Direct solver by consecutive substitution with symbolic inversion; iterative solver by damped Newton–Raphson (Levenberg–Marquardt) on guessed variables; list solving, units and plots.'),
+      h('p', {}, 'Everything runs locally in your browser. Your model is kept in this browser’s storage.'),
+    ]);
+  }
+
+  function modelText() {
+    const copy = JSON.parse(JSON.stringify(state));
+    copy.rules = copy.rules.filter((r, i) => r.trim() !== '' || i < copy.rules.length - 1);
+    // Drop data for variables no longer in any rule.
+    for (const k of Object.keys(copy.vars)) if (!model.variables.includes(k)) delete copy.vars[k];
+    for (const k of Object.keys(copy.lists)) if (!model.variables.includes(k)) delete copy.lists[k];
+    return JSON.stringify(Object.assign({ format: 'CH!Solver model', version: 1 }, copy), null, 2);
+  }
+
+  function textDialog() {
+    const ta = h('textarea', { id: 'model-text', spellcheck: 'false', 'aria-label': 'Model as JSON text' });
+    ta.value = modelText();
+    dialog('Model as Text', [h('p', {}, 'Copy this text to keep or share the model, or paste a model here and choose Load.'), ta], [
+      { label: 'Copy', run: () => {
+        const done = () => setStatus('Model copied to the clipboard.', 'ok');
+        try {
+          navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); setStatus('Select-all is done; press Ctrl+C to copy.', ''); });
+        } catch (_) { ta.select(); }
+        return false;
+      } },
+      { label: 'Cancel' },
+      { label: 'Load', default: true, run: () => {
+        try { loadState(JSON.parse(ta.value)); setStatus(`Loaded “${state.title}”.`, 'ok'); } catch (e) { setStatus(`That text is not a valid model: ${e.message}`, 'err'); return false; }
+      } },
+    ]);
+  }
+
+  function downloadModel() {
+    try {
+      const blob = new Blob([modelText()], { type: 'application/json' });
+      const a = h('a', { href: URL.createObjectURL(blob), download: `${(state.title || 'model').replace(/[^\w\- ]+/g, '').trim() || 'model'}.chs` });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      setStatus('Saved. If no file appeared, use File → Model as Text… and copy it.', 'ok');
+    } catch (_) {
+      textDialog();
+    }
+  }
+
+  function loadState(s, opts) {
+    state = normalizeState(s);
+    outputs = {};
+    rebuildModel();
+    shownVars = [];
+    renderRules();
+    renderVariables();
+    renderUnits();
+    renderLists();
+    renderPlotControls();
+    $('#model-title').textContent = state.title;
+    save();
+    if (opts && opts.solve) solveNow(true);
+  }
+
+  function loadExample(id) {
+    const ex = EXAMPLES.find((e) => e.id === id);
+    if (!ex) return;
+    loadState({ title: ex.title, rules: ex.rules, vars: ex.vars, units: ex.units || [], lists: ex.lists || {}, plot: ex.plot || { x: '', y: [] } });
+    if (ex.solveList) { solveNow(true); listSolveNow(); }
+    else if (id !== 'blank') solveNow(true);
+    else setStatus('Blank model. Type a rule, for example  F = m * a', '');
+    if (ex.lists) selectTab('plot');
+    const first = $('#rule-0'); if (first && id === 'blank') first.focus();
+  }
+
+  function command(cmd) {
+    if (cmd.startsWith('example:')) return loadExample(cmd.slice(8));
+    switch (cmd) {
+      case 'about': return about();
+      case 'guide': return selectTab('guide');
+      case 'new': return loadExample('blank');
+      case 'open': return $('#file-input').click();
+      case 'save': return downloadModel();
+      case 'text': return textDialog();
+      case 'solve': return solveNow();
+      case 'list-solve': return listSolveNow();
+      case 'clear-outputs':
+        outputs = {}; ruleStatus = model.rules.map((r) => (r.blank ? 'blank' : r.ok ? '' : 'error'));
+        paintOutputs(false); paintRuleStatus(); setStatus('Outputs cleared.', ''); return;
+      case 'clear-inputs':
+        for (const v of model.variables) { vdata(v).input = ''; }
+        outputs = {}; renderVariables(); save(); setStatus('Inputs cleared.', ''); return;
+      case 'outputs-to-guesses': {
+        const moved = [];
+        for (const v of model.variables) {
+          const d = vdata(v);
+          if (isFiniteNum(outputs[v]) && d.input.trim() === '') { d.input = fmt(outputs[v]); d.st = 'G'; moved.push(v); }
+        }
+        renderVariables(); save();
+        setStatus(moved.length ? `Outputs saved as guesses: ${moved.join(', ')}` : 'No outputs to copy.', moved.length ? 'ok' : '');
+        return;
+      }
+      case 'toggle-autoguess': prefs.autoGuess = !prefs.autoGuess; savePrefs(); paintOptions();
+        return setStatus(prefs.autoGuess ? 'Auto-guess on: CH!Solver picks guess variables when you have not.' : 'Auto-guess off: mark guesses yourself with St = G, as in TK!Solver.', '');
+      case 'toggle-autosolve': prefs.autoSolve = !prefs.autoSolve; savePrefs(); paintOptions();
+        if (prefs.autoSolve) solveNow(true); return;
+    }
+  }
+
+  // ------------------------------------------------------------------ boot
+
+  function init() {
+    setupMenus();
+    $('#solve-btn').addEventListener('click', () => solveNow());
+    $('#list-solve-btn').addEventListener('click', () => listSolveNow());
+    $('#fill-form').addEventListener('submit', onFill);
+    $('#plot-x').addEventListener('change', (ev) => { state.plot.x = ev.target.value; state.plot.y = state.plot.y.filter((y) => y !== state.plot.x); save(); renderPlotControls(); });
+    document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.addEventListener('click', () => selectTab(b.dataset.tab)));
+    $('#dialog').addEventListener('click', (ev) => { if (ev.target.id === 'dialog') closeDialog(); });
+    $('#file-input').addEventListener('change', (ev) => {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { loadState(JSON.parse(reader.result), { solve: true }); setStatus(`Opened ${f.name}.`, 'ok'); } catch (e) { setStatus(`${f.name} is not a CH!Solver model (${e.message}).`, 'err'); }
+      };
+      reader.readAsText(f);
+      ev.target.value = '';
+    });
+    $('#model-title').addEventListener('dblclick', () => {
+      const ta = h('input', { id: 'title-edit', value: state.title, 'aria-label': 'Model name', style: 'width:100%;padding:0.3rem;border:1px solid currentColor;background:transparent' });
+      dialog('Rename Model', [ta], [{ label: 'Cancel' }, { label: 'Rename', default: true, run: () => { state.title = ta.value.trim() || 'Untitled'; $('#model-title').textContent = state.title; save(); } }]);
+    });
+
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') { closeMenus(); closeDialog(); return; }
+      if (!$('#dialog').hidden) return;
+      if (ev.key === 'F9') { ev.preventDefault(); return ev.shiftKey ? listSolveNow() : solveNow(); }
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); return solveNow(); }
+      if ((ev.ctrlKey || ev.metaKey) && (ev.key === 's' || ev.key === 'S')) { ev.preventDefault(); return downloadModel(); }
+      if (ev.key === '!') {
+        // "!" is the solve key, as in TK!Solver. Let it through in comment / unit / text fields.
+        const t = ev.target;
+        const textish = t && t.matches && t.matches('input, textarea') && !(t.id.startsWith('rule-') || /^var-(in|st)-/.test(t.id) || t.id.startsWith('list-'));
+        if (!textish) { ev.preventDefault(); solveNow(); }
+      }
+    });
+    let rt = null;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawPlot, 80); });
+    if (window.matchMedia) {
+      try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawPlot); } catch (_) { /* old browsers */ }
+    }
+    new MutationObserver(drawPlot).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    const saved = loadSaved();
+    selectTab(prefs.tab || 'plot');
+    if (saved && saved.rules.some((r) => r.trim())) {
+      loadState(saved, { solve: true });
+      if (state.title) setStatus(`Welcome back — “${state.title}” restored. Press ! to solve.`, '');
+    } else {
+      loadExample('triangle');
+      setStatus('Example loaded: Right Triangle. Change an input and press ! — or try Examples in the menu bar.', 'ok');
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
