@@ -96,6 +96,7 @@ Typical models solve in well under a millisecond. The 3×3 nonlinear example con
 ```
 index.html            app shell (Variable / Rule sheets, subsheet tabs, menus)
 css/style.css         1-bit, 1985-Mac look; light and dark (inverse video)
+fonts/                ChicagoFLF (public-domain Chicago revival by Robin Casady)
 js/engine.js          parser, direct + iterative solvers, list solve, units (no DOM; runs in Node)
 js/examples.js        example models
 js/app.js             UI
@@ -113,5 +114,7 @@ tools/build-single.js inlines everything into dist/ch-solver.html
 * [Using TK Solver Plus, Univ. of Maryland course notes](https://terpconnect.umd.edu/~toh/Chem623/UsingTKSolverPlus.html)
 * [TK Solver 3.0 review, Design News](https://www.designnews.com/motion-control/tk-solver-3-0)
 * [TK Solver 5.0, R&D World](https://www.rdworldonline.com/tksolver-5-0-rules-based-mathematical-solutions/)
+
+The interface font is **ChicagoFLF**, Robin Casady's public-domain revival of Susan Kare's original Macintosh Chicago (see `fonts/README.ChicagoFLF.txt`). It's bundled locally, so the app works offline.
 
 TK!Solver is a trademark of Universal Technical Systems, Inc. CH!Solver is an independent homage and is not affiliated with UTS.

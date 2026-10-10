@@ -1,3 +1,10 @@
+/* ChicagoFLF: public-domain revival of Susan Kare's Chicago (see fonts/README.ChicagoFLF.txt). */
+@font-face {
+  font-family: "ChicagoFLF";
+  src: url("../fonts/ChicagoFLF.woff") format("woff");
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+
 /* Layout: a 1-bit 1985 desktop — dithered grey desk, square windows with
    pinstriped title bars; Variable Sheet over Rule Sheet (as in TK!Solver),
    subsheets (Plot / Lists / Units / Guide) in a side window on wide screens. */
@@ -13,12 +20,12 @@
   --warn: #b3261e;       /* unsatisfied rule mark (semantic) */
   --ok: #1d6b3a;
 
-  --font-chrome: "Pixelify Sans", "Chicago", "Charcoal", "Geneva", system-ui, sans-serif;
-  --font-data: "IBM Plex Mono", "Monaco", "Menlo", "DejaVu Sans Mono", monospace;
-  --font-prose: "IBM Plex Sans", "Geneva", system-ui, sans-serif;
+  --font-chrome: "ChicagoFLF", "Chicago", "Charcoal", "Geneva", system-ui, sans-serif;
+  --font-data: "ChicagoFLF", "Chicago", "Charcoal", "Geneva", system-ui, sans-serif;
+  --font-prose: "ChicagoFLF", "Chicago", "Charcoal", "Geneva", system-ui, sans-serif;
 
   --row: 1.9rem;
-  --fs-data: 0.875rem;
+  --fs-data: 0.9375rem;
   --fs-small: 0.78rem;
   --fs-chrome: 1rem;
   color-scheme: light;
@@ -41,6 +48,8 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { min-height: 100%; }
+/* Chicago has a single weight; never fake bold or italic. */
+html { font-synthesis: none; -webkit-font-smoothing: antialiased; }
 body {
   margin: 0;
   background-color: var(--desk-a);
