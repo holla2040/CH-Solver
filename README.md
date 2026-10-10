@@ -119,3 +119,5 @@ docs/screenshot.png   the screenshot above
 `fonts/MKMonaco.woff2` is an original pixel drawing in the style of Monaco 9: 6-pixel cells, 7-pixel capitals, a slashed zero (`tools/font/build-monaco.py`). It is also public domain. `tools/font/` has the pixel data and the scripts to rebuild it. All sizes in the stylesheet are whole multiples of one screen pixel, so the text stays sharp. **Settings → Double Size** doubles every pixel, and large screens use double size by default.
 
 TK!Solver is a trademark of Universal Technical Systems, Inc. MK!Solver is an independent homage and is not affiliated with UTS. It is a clean-room implementation, written from scratch using only publicly available information: published descriptions, reviews and screenshots of TK!Solver. No TK!Solver source code, program files or manuals were used.
+
+All of the development work, including the research, solver engine, interface, pixel fonts, tests and this README, was done by [Claude Code](https://claude.com/claude-code), Anthropic's AI coding agent, working under the direction of Craig Hollabaugh.
