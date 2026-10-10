@@ -23,7 +23,7 @@ Rule Sheet                         Variable Sheet
 * **Use it:** open `index.html` (or `dist/mk-solver.html`) in any modern browser. It also works from `file://`.
 * **Test the engine:** `npm test` (Node 18+, no packages needed).
 * **Rebuild the single file:** `npm run build`. This inlines `css/` and `js/` into `dist/mk-solver.html`.
-* **Online:** https://holla2040.github.io/CH-Solver/ is deployed by `.github/workflows/pages.yml` on every push to `main`, after the engine tests pass. The single-file version is at `/dist/mk-solver.html`.
+* **Online:** https://holla2040.github.io/MKSolver/ is deployed by `.github/workflows/pages.yml` on every push to `main`, after the engine tests pass. The single-file version is at `/dist/mk-solver.html`.
 
 ## How to use it
 
